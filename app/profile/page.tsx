@@ -5,16 +5,11 @@ export default async function ProfilePage() {
   const user = await requireUser("/profile");
 
   return (
-    <main className="min-h-[calc(100vh-56px)] px-6 py-12">
-      <div className="mx-auto max-w-3xl space-y-6">
-        <section
-          className="rounded-2xl border p-6"
-          style={{ borderColor: "var(--app-border)", backgroundColor: "var(--app-card)" }}
-        >
-          <p className="text-sm uppercase tracking-widest" style={{ color: "var(--app-muted)" }}>
-            Profile
-          </p>
-          <h1 className="mt-2 text-3xl font-bold">{user.name}</h1>
+    <main className="min-h-[calc(100vh-56px)] px-6 py-10">
+      <div className="mx-auto max-w-4xl space-y-6">
+        <section className="ui-panel rounded-3xl p-6 md:p-8">
+          <p className="ui-kicker">Profile</p>
+          <h1 className="mt-2 text-3xl font-bold md:text-4xl">{user.name}</h1>
           <p className="mt-2 text-sm" style={{ color: "var(--app-muted)" }}>
             {user.email}
           </p>
@@ -29,19 +24,11 @@ export default async function ProfilePage() {
           </p>
         </section>
 
-        <div className="flex flex-wrap gap-4">
-          <Link
-            href="/settings"
-            className="rounded-xl px-4 py-2 text-sm font-semibold text-white"
-            style={{ backgroundColor: "var(--app-accent-strong)" }}
-          >
+        <div className="flex flex-wrap gap-3">
+          <Link href="/settings" className="ui-btn-primary px-5 py-2.5 text-sm">
             Edit Profile & Settings
           </Link>
-          <Link
-            href="/dashboard"
-            className="rounded-xl border px-4 py-2 text-sm"
-            style={{ borderColor: "var(--app-border)" }}
-          >
+          <Link href="/dashboard" className="ui-btn-secondary px-5 py-2.5 text-sm">
             Back to Dashboard
           </Link>
         </div>
