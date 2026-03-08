@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import AuthNav from "./components/auth-nav";
+import PrimaryNav from "./components/primary-nav";
 import ThemeToggle from "./components/theme-toggle";
 import "./globals.css";
 
@@ -16,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "mnd.app",
+  title: "lerna.ai",
   description: "AI-powered study platform for notes, summaries, and quizzes.",
 };
 
@@ -26,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" data-theme="light" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
@@ -35,7 +36,7 @@ export default function RootLayout({
             __html: `
               (() => {
                 try {
-                  const key = "mnd-theme";
+                  const key = "lerna-theme";
                   const saved = localStorage.getItem(key);
                   const theme =
                     saved === "dark" || saved === "light"
@@ -48,10 +49,13 @@ export default function RootLayout({
           }}
         />
         <header
-          className="sticky top-0 z-30 border-b backdrop-blur"
-          style={{ borderColor: "var(--app-border)", backgroundColor: "var(--app-card)" }}
+          className="sticky top-0 z-30 backdrop-blur-xl"
+          style={{
+            backgroundColor: "var(--app-bg)",
+            boxShadow: "none",
+          }}
         >
-          <nav className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-6">
+          <nav className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-4 px-6">
             <Link href="/" className="flex items-center gap-2 text-sm font-semibold tracking-wide">
               <span
                 className="grid h-8 w-8 place-items-center rounded-lg text-xs font-bold"
@@ -59,19 +63,15 @@ export default function RootLayout({
                   color: "white",
                   background:
                     "linear-gradient(135deg, var(--app-accent-strong), var(--app-accent))",
+                  boxShadow: "0 8px 18px color-mix(in srgb, var(--app-accent) 35%, transparent)",
                 }}
               >
-                M
+                L
               </span>
-              <span style={{ color: "var(--app-fg)" }}>mnd.app</span>
+              <span style={{ color: "var(--app-fg)" }}>lerna.ai</span>
             </Link>
-            <div className="flex items-center gap-5 text-sm" style={{ color: "var(--app-muted)" }}>
-              <Link href="/dashboard" className="hover:opacity-80">
-                Dashboard
-              </Link>
-              <Link href="/upload" className="hover:opacity-80">
-                Upload
-              </Link>
+            <div className="flex items-center gap-2 text-sm" style={{ color: "var(--app-muted)" }}>
+              <PrimaryNav />
               <AuthNav />
               <ThemeToggle />
             </div>
