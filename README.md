@@ -1,4 +1,4 @@
-# mnd.app
+# lerna.ai
 
 AI-powered study platform built with Next.js App Router and Tailwind CSS.
 
@@ -19,9 +19,18 @@ npm install
 2. Create `.env.local`:
 
 ```bash
-OPENAI_API_KEY=your_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
 # Optional:
-# OPENAI_MODEL=gpt-4.1-mini
+# GEMINI_MODEL=gemini-2.5-flash
+
+# Auth token signing secret (set your own long random value)
+AUTH_SECRET=replace_with_a_long_random_secret
+
+# OAuth providers (Google + Discord implemented)
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+DISCORD_CLIENT_ID=...
+DISCORD_CLIENT_SECRET=...
 ```
 
 3. Start dev server:
@@ -37,4 +46,4 @@ Open `http://localhost:3000`.
 - `/` Landing page
 - `/dashboard` Feature dashboard
 - `/upload` Upload notes and get explanation
-- `/api/explain` API route that calls OpenAI
+- `/api/explain` API route that calls Gemini
