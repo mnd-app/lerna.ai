@@ -1,14 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --app-bg: #f8fbff;
-  --app-bg-soft: #dbeafe;
-  --app-card: #eff6ffea;
-  --app-fg: #0f172a;
-  --app-muted: #1d4ed8;
-  --app-border: #93c5fd;
-  --app-accent: #3b82f6;
-  --app-accent-strong: #1d4ed8;
+  --app-bg: #020817;
+  --app-bg-soft: #06142a;
+  --app-card: #0d1d36;
+  --app-card-soft: #11284b;
+  --app-fg: #e7f0ff;
+  --app-muted: #9dc2ff;
+  --app-border: #1f4380;
+  --app-accent: #2f7cf0;
+  --app-accent-strong: #0763da;
+  --app-shadow: 0 12px 34px color-mix(in srgb, var(--app-accent) 12%, transparent);
+  --app-shadow-soft: 0 6px 20px color-mix(in srgb, var(--app-accent) 9%, transparent);
 }
 
 @theme inline {
@@ -19,22 +22,302 @@
 }
 
 [data-theme="dark"] {
-  --app-bg: #020617;
-  --app-bg-soft: #0b1e46;
-  --app-card: #0b1a3be6;
-  --app-fg: #dbeafe;
-  --app-muted: #93c5fd;
-  --app-border: #1d4ed8;
-  --app-accent: #60a5fa;
-  --app-accent-strong: #2563eb;
+  --app-bg: #020817;
+  --app-bg-soft: #06142a;
+  --app-card: #0d1d36;
+  --app-card-soft: #11284b;
+  --app-fg: #e7f0ff;
+  --app-muted: #9dc2ff;
+  --app-border: #1f4380;
+  --app-accent: #2f7cf0;
+  --app-accent-strong: #0763da;
+  --app-shadow: 0 16px 36px color-mix(in srgb, black 65%, var(--app-accent) 35%);
+  --app-shadow-soft: 0 8px 20px color-mix(in srgb, black 70%, var(--app-accent) 30%);
 }
 
 body {
   min-height: 100vh;
-  background:
-    radial-gradient(circle at 10% -10%, var(--app-bg-soft), transparent 45%),
-    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--app-accent) 38%, transparent), transparent 45%),
-    var(--app-bg);
+  background: var(--app-bg);
   color: var(--app-fg);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  transition: background 220ms ease, color 220ms ease;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--app-accent) 30%, transparent);
+}
+
+.ui-kicker {
+  color: var(--app-muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.ui-muted {
+  color: var(--app-muted);
+}
+
+.ui-panel {
+  border: 1px solid var(--app-border);
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--app-card) 92%, white 8%),
+    var(--app-card)
+  );
+  border-radius: 1rem;
+  box-shadow: var(--app-shadow-soft);
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.ui-panel:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--app-shadow);
+  border-color: color-mix(in srgb, var(--app-accent-strong) 55%, var(--app-border));
+}
+
+.ui-card {
+  border: 1px solid var(--app-border);
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--app-card-soft) 90%, white 10%),
+    var(--app-card-soft)
+  );
+  border-radius: 0.9rem;
+  box-shadow: var(--app-shadow-soft);
+}
+
+.ui-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.75rem;
+  padding: 0.7rem 1rem;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, var(--app-accent-strong), var(--app-accent));
+  box-shadow: 0 10px 20px color-mix(in srgb, var(--app-accent) 35%, transparent);
+  transition: transform 150ms ease, box-shadow 150ms ease, filter 150ms ease;
+}
+
+.ui-btn-primary:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+  box-shadow: 0 14px 24px color-mix(in srgb, var(--app-accent) 42%, transparent);
+}
+
+.ui-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  padding: 0.7rem 1rem;
+  font-weight: 600;
+  border: 1px solid var(--app-border);
+  color: var(--app-fg);
+  background-color: transparent;
+  transition: background-color 150ms ease, border-color 150ms ease, transform 150ms ease;
+}
+
+.ui-btn-secondary:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--app-accent-strong) 50%, var(--app-border));
+  background-color: color-mix(in srgb, var(--app-bg) 82%, var(--app-card) 18%);
+}
+
+.ui-btn-chip {
+  border-radius: 0.7rem;
+  border: 1px solid var(--app-border);
+  padding: 0.55rem 0.8rem;
+  font-size: 0.88rem;
+  background: transparent;
+  color: var(--app-fg);
+  transition: border-color 150ms ease, background-color 150ms ease, transform 150ms ease;
+}
+
+.ui-btn-chip:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--app-accent-strong) 48%, var(--app-border));
+  background-color: color-mix(in srgb, var(--app-bg) 88%, var(--app-card) 12%);
+}
+
+.ui-btn-chip.active {
+  background-color: var(--app-bg);
+  border-color: var(--app-accent-strong);
+  color: var(--app-accent-strong);
+}
+
+.ui-input {
+  width: 100%;
+  border: 1px solid var(--app-border);
+  background-color: var(--app-bg);
+  border-radius: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  outline: none;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.ui-input:focus {
+  border-color: color-mix(in srgb, var(--app-accent-strong) 65%, var(--app-border));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-accent) 22%, transparent);
+}
+
+.flashcard-scene {
+  perspective: 1100px;
+}
+
+.flashcard-inner {
+  position: relative;
+  min-height: 230px;
+  border-radius: 1rem;
+  transform-style: preserve-3d;
+  transition: transform 0.5s ease;
+}
+
+.flashcard-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.flashcard-face {
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--app-border);
+  border-radius: 1rem;
+  background:
+    linear-gradient(160deg, color-mix(in srgb, var(--app-card) 88%, white 12%), var(--app-bg));
+  box-shadow: 0 10px 35px color-mix(in srgb, var(--app-accent) 20%, transparent);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.flashcard-back {
+  transform: rotateY(180deg);
+}
+
+.hero-grid {
+  background-image:
+    linear-gradient(to right, rgba(65, 104, 210, 0.2) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(65, 104, 210, 0.16) 1px, transparent 1px);
+  background-size: 34px 34px;
+}
+
+@keyframes heroFloatA {
+  0%, 100% { transform: translateY(0px) rotate(-3deg); }
+  50% { transform: translateY(-8px) rotate(-2deg); }
+}
+
+@keyframes heroFloatB {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(7px) rotate(1deg); }
+}
+
+@keyframes heroFloatC {
+  0%, 100% { transform: translateY(0px) rotate(4deg); }
+  50% { transform: translateY(-10px) rotate(3deg); }
+}
+
+.hero-float-a { animation: heroFloatA 6s ease-in-out infinite; }
+.hero-float-b { animation: heroFloatB 7s ease-in-out infinite; }
+.hero-float-c { animation: heroFloatC 6.4s ease-in-out infinite; }
+
+@keyframes trustMarquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+
+.trust-marquee {
+  display: flex;
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+.trust-track {
+  display: flex;
+  flex-shrink: 0;
+  min-width: 100%;
+  gap: 2rem;
+  animation: trustMarquee 26s linear infinite;
+}
+
+.trust-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 220px;
+  height: 72px;
+  white-space: nowrap;
+}
+
+.trust-logo {
+  max-height: 52px;
+  width: auto;
+  max-width: 210px;
+  object-fit: contain;
+  filter: none;
+  opacity: 1;
+}
+
+.reviews-embla {
+  overflow: hidden;
+  touch-action: pan-y;
+}
+
+.reviews-embla__container {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.reviews-embla__slide {
+  flex: 0 0 86%;
+  min-width: 0;
+}
+
+@media (min-width: 900px) {
+  .reviews-embla__slide {
+    flex-basis: 48%;
+  }
+}
+
+.review-card {
+  width: min(560px, 82vw);
+  border: 1px solid color-mix(in srgb, var(--app-border) 80%, white 20%);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--app-card) 90%, white 10%),
+    color-mix(in srgb, var(--app-bg) 88%, var(--app-card) 12%)
+  );
+}
+
+.review-quote {
+  color: color-mix(in srgb, var(--app-muted) 74%, white 26%);
+  font-size: 1.05rem;
+  line-height: 1.5;
+  font-style: italic;
+  min-height: 118px;
+}
+
+.review-avatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--app-border) 70%, white 30%);
+  object-fit: cover;
+  background: #0b1327;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-float-a,
+  .hero-float-b,
+  .hero-float-c,
+  .trust-track {
+    animation: none;
+  }
 }
