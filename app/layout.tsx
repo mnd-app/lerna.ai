@@ -21,9 +21,9 @@ export const metadata: Metadata = {
   title: "lerna.ai",
   description: "AI-powered study platform for notes, summaries, and quizzes.",
   icons: {
-    icon: "/lerna-brand.svg",
-    shortcut: "/lerna-brand.svg",
-    apple: "/lerna-brand.svg",
+    icon: "/lerna-favicon.svg",
+    shortcut: "/lerna-favicon.svg",
+    apple: "/lerna-favicon.svg",
   },
 };
 
@@ -64,9 +64,15 @@ export default function RootLayout({
           <nav className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-2 px-2.5 sm:px-4 md:h-16 md:gap-4 md:px-6">
             <Link href="/" className="flex shrink-0 items-center gap-2 overflow-visible text-sm font-semibold tracking-wide">
               <img
-                src="/lerna-brand.svg"
+                src="/lerna-mobile-logo.svg"
                 alt="lerna"
-                className="h-12 w-auto object-contain md:h-10"
+                className="h-12 w-auto object-contain md:hidden"
+                loading="eager"
+              />
+              <img
+                src="/lerna-web-logo.svg"
+                alt="lerna"
+                className="hidden h-10 w-auto object-contain md:block"
                 loading="eager"
               />
             </Link>
