@@ -127,6 +127,7 @@ export function toPublicUser(user: UserRecord): PublicUser {
     heardFrom: user.heardFrom,
     learnerType: user.learnerType,
     onboardingCompleted: user.onboardingCompleted,
+    oauthProviders: user.oauthProviders ?? {},
     verified: user.verified,
     bio: user.bio,
     createdAt: user.createdAt,
