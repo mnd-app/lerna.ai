@@ -2,6 +2,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import AuthNav from "./components/auth-nav";
+import MobileNav from "./components/mobile-nav";
 import PrimaryNav from "./components/primary-nav";
 import ThemeToggle from "./components/theme-toggle";
 import "./globals.css";
@@ -70,12 +71,15 @@ export default function RootLayout({
               />
             </Link>
             <div
-              className="flex min-w-0 max-w-[68vw] items-center gap-1.5 overflow-x-auto whitespace-nowrap pr-0.5 text-xs [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-2 sm:text-sm md:max-w-none"
+              className="hidden min-w-0 items-center gap-2 overflow-x-auto whitespace-nowrap pr-0.5 text-sm [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:flex"
               style={{ color: "var(--app-muted)" }}
             >
               <PrimaryNav />
               <AuthNav />
               <ThemeToggle />
+            </div>
+            <div className="md:hidden">
+              <MobileNav />
             </div>
           </nav>
         </header>
