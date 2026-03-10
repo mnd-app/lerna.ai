@@ -14,6 +14,7 @@ export type UserRecord = {
   heardFrom: string;
   learnerType: string;
   onboardingCompleted: boolean;
+  uploadsUsed: number;
   passwordHash: string;
   passwordSalt: string;
   oauthProviders: Partial<Record<OAuthProvider, string>>;
@@ -47,6 +48,19 @@ const AUTH_STORE_PATH = path.join(process.cwd(), "data", "auth-users.json");
 const SESSION_COOKIE_NAME = "lerna_session";
 const DEFAULT_SECRET = "dev-only-secret-change-me";
 const TOKEN_SECRET = process.env.AUTH_SECRET ?? DEFAULT_SECRET;
+export const FREE_UPLOAD_LIMIT = 3;
+
+export class UploadLimitError extends Error {
+  limit: number;
+  used: number;
+
+  constructor(used: number, limit = FREE_UPLOAD_LIMIT) {
+    super(`Free upload limit reached (${used}/${limit}).`);
+    this.name = "UploadLimitError";
+    this.limit = limit;
+    this.used = used;
+  }
+}
 
 function base64UrlEncode(value: string): string {
   return Buffer.from(value).toString("base64url");
@@ -100,6 +114,7 @@ async function readStore(): Promise<AuthStore> {
     heardFrom: user.heardFrom ?? "",
     learnerType: user.learnerType ?? "",
     onboardingCompleted: user.onboardingCompleted ?? false,
+    uploadsUsed: user.uploadsUsed ?? 0,
     passwordHash: user.passwordHash ?? "",
     passwordSalt: user.passwordSalt ?? "",
     oauthProviders: user.oauthProviders ?? {},
@@ -127,6 +142,7 @@ export function toPublicUser(user: UserRecord): PublicUser {
     heardFrom: user.heardFrom,
     learnerType: user.learnerType,
     onboardingCompleted: user.onboardingCompleted,
+    uploadsUsed: user.uploadsUsed ?? 0,
     oauthProviders: user.oauthProviders ?? {},
     verified: user.verified,
     bio: user.bio,
@@ -179,6 +195,7 @@ export async function createUser(input: {
     heardFrom: "",
     learnerType: "",
     onboardingCompleted: false,
+    uploadsUsed: 0,
     passwordHash: hashPassword(input.password, salt),
     passwordSalt: salt,
     oauthProviders: {},
@@ -280,6 +297,7 @@ export async function upsertOAuthUser(input: {
       heardFrom: "",
       learnerType: "",
       onboardingCompleted: false,
+      uploadsUsed: 0,
       passwordHash: "",
       passwordSalt: "",
       oauthProviders: { [input.provider]: input.providerUserId },
@@ -299,6 +317,28 @@ export async function upsertOAuthUser(input: {
 
   await writeStore(store);
   return user;
+}
+
+export async function assertUserCanUpload(userId: string): Promise<void> {
+  const store = await readStore();
+  const user = store.users.find((entry) => entry.id === userId);
+  if (!user) return;
+
+  const used = user.uploadsUsed ?? 0;
+  if (used >= FREE_UPLOAD_LIMIT) {
+    throw new UploadLimitError(used, FREE_UPLOAD_LIMIT);
+  }
+}
+
+export async function incrementUserUploadUsage(userId: string): Promise<number> {
+  const store = await readStore();
+  const user = store.users.find((entry) => entry.id === userId);
+  if (!user) return 0;
+
+  user.uploadsUsed = (user.uploadsUsed ?? 0) + 1;
+  user.updatedAt = new Date().toISOString();
+  await writeStore(store);
+  return user.uploadsUsed;
 }
 
 function createToken(payload: Omit<BaseTokenPayload, "exp">, expiresInSec: number): string {

@@ -437,7 +437,26 @@ export default function StudyroomTopicPage() {
           {subject ? (
             <div className="space-y-6">
               <header>
-                <p className="text-sm uppercase tracking-widest" style={{ color: "var(--app-muted)" }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (window.history.length > 1) {
+                      router.back();
+                      return;
+                    }
+                    router.push("/studyroom");
+                  }}
+                  className="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium transition hover:opacity-85"
+                  style={{
+                    borderColor: "var(--app-border)",
+                    color: "var(--app-muted)",
+                    backgroundColor: "color-mix(in srgb, var(--app-bg) 90%, var(--app-card) 10%)",
+                  }}
+                >
+                  <span aria-hidden="true">←</span>
+                  Back
+                </button>
+                <p className="mt-3 text-sm uppercase tracking-widest" style={{ color: "var(--app-muted)" }}>
                   Studyroom Topic
                 </p>
                 <h1 className="mt-2 text-3xl font-bold">{subject.topicName}</h1>

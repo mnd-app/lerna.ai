@@ -1,10 +1,8 @@
 ﻿import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
-import AuthNav from "./components/auth-nav";
+import HeaderDesktopNav from "./components/header-desktop-nav";
 import MobileNav from "./components/mobile-nav";
-import PrimaryNav from "./components/primary-nav";
-import ThemeToggle from "./components/theme-toggle";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -33,7 +31,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-theme="light" suppressHydrationWarning>
+    <html lang="en" data-theme="dark" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
@@ -57,8 +55,11 @@ export default function RootLayout({
         <header
           className="sticky top-0 z-30 backdrop-blur-xl"
           style={{
-            backgroundColor: "var(--app-bg)",
-            boxShadow: "none",
+            backgroundColor: "color-mix(in srgb, var(--app-card) 42%, transparent)",
+            borderBottom: "1px solid color-mix(in srgb, var(--app-border) 62%, transparent)",
+            boxShadow: "0 8px 24px color-mix(in srgb, var(--app-accent) 12%, transparent)",
+            backdropFilter: "blur(16px) saturate(145%)",
+            WebkitBackdropFilter: "blur(16px) saturate(145%)",
           }}
         >
           <nav className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-2 px-2.5 sm:px-4 md:h-16 md:gap-4 md:px-6">
@@ -76,14 +77,7 @@ export default function RootLayout({
                 loading="eager"
               />
             </Link>
-            <div
-              className="hidden min-w-0 items-center gap-2 overflow-x-auto whitespace-nowrap pr-0.5 text-sm [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:flex"
-              style={{ color: "var(--app-muted)" }}
-            >
-              <PrimaryNav />
-              <AuthNav />
-              <ThemeToggle />
-            </div>
+            <HeaderDesktopNav />
             <div className="md:hidden">
               <MobileNav />
             </div>

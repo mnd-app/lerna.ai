@@ -1,9 +1,8 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getCurrentUserFromCookieHeader } from "@/lib/auth";
 import ReviewsCarousel from "@/app/components/reviews-carousel";
-import PricingSection from "@/app/components/pricing-section";
 
 export default async function Home() {
   const cookieStore = await cookies();
@@ -104,25 +103,75 @@ export default async function Home() {
     },
   ];
 
+  const showcaseCards = [
+    {
+      kicker: "Upload Once",
+      title: "Bring in class material fast",
+      copy: "Drop PDFs, pasted notes, lecture audio, or links and let Lerna structure the raw content for you.",
+      tone: "linear-gradient(160deg, color-mix(in srgb, var(--app-accent) 18%, var(--app-card)), color-mix(in srgb, var(--app-card) 88%, var(--app-bg) 12%))",
+      chrome: "Sources synced",
+      type: "upload",
+    },
+    {
+      kicker: "Study Guide",
+      title: "Get a clearer explanation",
+      copy: "Dense topics become simpler with key ideas, examples, and exam-facing language pulled from your notes.",
+      tone: "linear-gradient(160deg, color-mix(in srgb, var(--app-accent) 14%, var(--app-card)), color-mix(in srgb, var(--app-card) 92%, var(--app-bg) 8%))",
+      chrome: "Concepts simplified",
+      type: "guide",
+    },
+    {
+      kicker: "Flashcards",
+      title: "Memorize only what matters",
+      copy: "Lerna turns high-value points into short, recall-friendly cards for quick review between classes.",
+      tone: "linear-gradient(160deg, color-mix(in srgb, var(--app-accent) 24%, var(--app-card)), color-mix(in srgb, var(--app-card) 90%, var(--app-bg) 10%))",
+      chrome: "Short answers",
+      type: "flashcards",
+    },
+    {
+      kicker: "Quiz Flow",
+      title: "Practice with active recall",
+      copy: "Auto-generated quizzes surface weak areas early, so you spend revision time where it counts.",
+      tone: "linear-gradient(160deg, color-mix(in srgb, var(--app-accent) 16%, var(--app-card)), color-mix(in srgb, var(--app-card) 90%, var(--app-bg) 10%))",
+      chrome: "Weak spots detected",
+      type: "quiz",
+    },
+    {
+      kicker: "Essay Review",
+      title: "Tighten writing before submission",
+      copy: "Use grading-style feedback to sharpen structure, clarity, and argument quality before handing work in.",
+      tone: "linear-gradient(160deg, color-mix(in srgb, var(--app-accent) 12%, var(--app-card)), color-mix(in srgb, var(--app-card) 94%, var(--app-bg) 6%))",
+      chrome: "Feedback ready",
+      type: "essay",
+    },
+    {
+      kicker: "Ask Lerna",
+      title: "Study with your own AI tutor",
+      copy: "Ask focused questions about your uploaded material and stay inside the context of your class content.",
+      tone: "linear-gradient(160deg, color-mix(in srgb, var(--app-accent) 20%, var(--app-card)), color-mix(in srgb, var(--app-card) 88%, var(--app-bg) 12%))",
+      chrome: "Context-aware answers",
+      type: "chat",
+    },
+  ] as const;
+
   return (
     <main className="min-h-[calc(100vh-56px)] overflow-x-clip px-2.5 py-3 sm:px-5 md:px-6 md:py-8">
       <section className="mx-auto max-w-7xl">
         <div
           className="relative left-1/2 right-1/2 w-screen -translate-x-1/2 overflow-hidden px-3 py-7 sm:px-6 sm:py-12 md:py-16"
-          style={{ backgroundColor: "var(--app-bg)" }}
+          style={{ backgroundColor: "transparent" }}
         >
           <div className="mx-auto grid max-w-7xl items-center gap-6 sm:gap-8 lg:grid-cols-2 lg:gap-10">
             <div className="order-2 relative min-h-[240px] sm:min-h-[380px] lg:order-1">
               <div
-                className="rounded-3xl border p-4 md:hidden"
+                className="rounded-3xl p-4 md:hidden"
                 style={{
-                  borderColor: "var(--app-border)",
                   background:
                     "linear-gradient(135deg, color-mix(in srgb, var(--app-card) 90%, var(--app-bg) 10%), color-mix(in srgb, var(--app-bg) 78%, var(--app-card) 22%))",
                   boxShadow: "0 0 70px color-mix(in srgb, var(--app-accent) 20%, transparent)",
                 }}
               >
-                <div className="rounded-2xl border p-3" style={{ borderColor: "var(--app-border)", backgroundColor: "var(--app-card)" }}>
+                <div className="rounded-2xl p-3" style={{ backgroundColor: "var(--app-card)" }}>
                   <div className="flex items-center justify-between">
                     <p className="text-xs font-semibold" style={{ color: "var(--app-muted)" }}>Studyroom preview</p>
                     <span
@@ -176,124 +225,75 @@ export default async function Home() {
               </div>
 
               <div
-                className="absolute inset-0 hidden rounded-3xl border md:block"
+                className="hidden rounded-3xl border p-8 md:block"
                 style={{
                   borderColor: "var(--app-border)",
                   background:
-                    "linear-gradient(135deg, color-mix(in srgb, var(--app-card) 90%, var(--app-bg) 10%), color-mix(in srgb, var(--app-bg) 78%, var(--app-card) 22%))",
-                  boxShadow: "0 0 120px color-mix(in srgb, var(--app-accent) 24%, transparent)",
+                    "linear-gradient(135deg, color-mix(in srgb, var(--app-card) 70%, transparent), color-mix(in srgb, var(--app-bg) 78%, var(--app-card) 22%))",
+                  boxShadow: "inset 0 1px 0 color-mix(in srgb, white 20%, transparent)",
                 }}
-              />
-
-              <div
-                className="absolute left-[8%] top-[16%] hidden w-[84%] rounded-2xl border p-3 shadow-2xl sm:p-5 md:block"
-                style={{ borderColor: "var(--app-border)", backgroundColor: "var(--app-card)" }}
               >
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-semibold" style={{ color: "var(--app-muted)" }}>Studyroom live preview</p>
-                  <span
-                    className="rounded-full border px-3 py-1 text-xs font-semibold"
-                    style={{
-                      borderColor: "var(--app-border)",
-                      color: "var(--app-accent-strong)",
-                      backgroundColor: "color-mix(in srgb, var(--app-accent) 12%, transparent)",
-                    }}
-                  >
-                    Session active
-                  </span>
-                </div>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--app-accent-strong)" }}>
+                  How Lerna Works
+                </p>
+                <h3 className="mt-4 text-3xl font-semibold leading-tight">From raw material to exam-ready study flow</h3>
+                <p className="mt-3 text-base" style={{ color: "var(--app-muted)" }}>
+                  A clean three-step process: upload, generate, and practice.
+                </p>
 
-                <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <div className="mt-8 grid grid-cols-3 gap-5">
                   {[
-                    { label: "Current Topic", value: "Cell Biology" },
-                    { label: "Mastery", value: "74%" },
-                    { label: "Streak", value: "12 days" },
-                  ].map((item) => (
-                    <div
-                      key={item.label}
-                      className="rounded-xl border p-3"
-                      style={{ borderColor: "var(--app-border)", backgroundColor: "color-mix(in srgb, var(--app-card) 92%, var(--app-bg) 8%)" }}
-                    >
-                      <p className="text-xs" style={{ color: "var(--app-muted)" }}>{item.label}</p>
-                      <p className="mt-1 text-lg font-bold">{item.value}</p>
+                    {
+                      step: "STEP 1",
+                      title: "Upload Material",
+                      points: ["PDF, DOC, TXT, or audio", "Paste notes or YouTube links", "Auto text extraction starts"],
+                    },
+                    {
+                      step: "STEP 2",
+                      title: "Generate Study Guide",
+                      points: ["Concepts simplified clearly", "Key formulas highlighted", "Examples added for context"],
+                    },
+                    {
+                      step: "STEP 3",
+                      title: "Practice & Retain",
+                      points: ["Flashcards from core points", "Quiz prompts for active recall", "Progress tracked over time"],
+                    },
+                  ].map((item, idx) => (
+                    <div key={item.step} className="relative">
+                      <article
+                        className="h-full rounded-2xl border p-5"
+                        style={{
+                          borderColor: "var(--app-border)",
+                          backgroundColor: "color-mix(in srgb, var(--app-card) 84%, transparent)",
+                        }}
+                      >
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--app-accent-strong)" }}>
+                          {item.step}
+                        </p>
+                        <h4 className="mt-2 text-2xl font-semibold">{item.title}</h4>
+                        <ul className="mt-4 space-y-2 text-sm" style={{ color: "var(--app-muted)" }}>
+                          {item.points.map((point) => (
+                            <li key={point}>+ {point}</li>
+                          ))}
+                        </ul>
+                      </article>
                     </div>
                   ))}
                 </div>
-
-                <div className="mt-4">
-                  <p className="text-sm font-medium" style={{ color: "var(--app-muted)" }}>
-                    Progress this week
-                  </p>
-                  <div
-                    className="mt-2 h-2 overflow-hidden rounded-full"
-                    style={{ backgroundColor: "color-mix(in srgb, var(--app-border) 55%, transparent)" }}
-                  >
-                    <div className="hero-progress h-full rounded-full" />
-                  </div>
-                </div>
-              </div>
-
-              <div
-                className="hero-float-a absolute left-[4%] top-[6%] hidden w-52 rounded-2xl border p-4 md:block"
-                style={{ borderColor: "var(--app-border)", backgroundColor: "var(--app-card)" }}
-              >
-                <p className="text-xs font-semibold" style={{ color: "var(--app-accent-strong)" }}>
-                  STEP 1
-                </p>
-                <p className="mt-2 text-xl font-bold">Upload notes</p>
-                <p className="mt-2 text-sm" style={{ color: "var(--app-muted)" }}>
-                  PDF, text, audio, or YouTube links
-                </p>
-              </div>
-
-              <div
-                className="hero-float-b absolute right-[4%] top-[10%] hidden w-56 rounded-2xl border p-4 md:block"
-                style={{ borderColor: "var(--app-border)", backgroundColor: "var(--app-card)" }}
-              >
-                <p className="text-xs font-semibold" style={{ color: "var(--app-accent-strong)" }}>
-                  STEP 2
-                </p>
-                <p className="mt-2 text-xl font-bold">Generate study guide</p>
-                <p className="mt-2 text-sm" style={{ color: "var(--app-muted)" }}>
-                  Clear explanations and examples
-                </p>
-              </div>
-
-              <div
-                className="hero-float-c absolute bottom-[7%] right-[10%] hidden w-60 rounded-2xl border p-4 md:block"
-                style={{ borderColor: "var(--app-border)", backgroundColor: "var(--app-card)" }}
-              >
-                <p className="text-xs font-semibold" style={{ color: "var(--app-accent-strong)" }}>
-                  STEP 3
-                </p>
-                <p className="mt-2 text-xl font-bold">Practice + retain</p>
-                <p className="mt-2 text-sm" style={{ color: "var(--app-muted)" }}>
-                  Flashcards, quizzes, and progress tracking
-                </p>
               </div>
             </div>
 
             <div className="order-1 lg:order-2">
-              <p
-                className="inline-flex items-center gap-2 rounded-full border px-4 py-1 text-xs font-semibold"
-                style={{ borderColor: "var(--app-border)", color: "var(--app-accent-strong)" }}
-              >
-                <span
-                  className="inline-flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold"
-                  style={{
-                    backgroundColor: "var(--app-accent-strong)",
-                    color: "white",
-                  }}
-                  aria-hidden="true"
-                >
-                  ✓
-                </span>
-                TRUSTED BY STUDENTS
-              </p>
               <h1 className="mt-4 text-3xl font-extrabold leading-[1.02] sm:text-5xl md:text-7xl">
-                Learn Smarter...
+                Learn Smarter,
                 <br />
-                <span className="bg-gradient-to-r from-violet-300 to-blue-300 bg-clip-text text-transparent">
+                <span
+                  className="bg-clip-text text-transparent"
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(90deg, color-mix(in srgb, var(--app-accent) 62%, white 38%), color-mix(in srgb, var(--app-accent-strong) 70%, white 30%))",
+                  }}
+                >
                   Not Harder.
                 </span>
               </h1>
@@ -377,120 +377,248 @@ export default async function Home() {
         <div className="relative left-1/2 right-1/2 w-screen -translate-x-1/2 px-3 py-10 sm:px-6 sm:py-12">
           <div className="mx-auto max-w-7xl">
             <h2 className="text-center text-2xl font-bold sm:text-4xl md:text-5xl">Our Process</h2>
+            <p className="mx-auto mt-4 max-w-3xl text-center text-sm sm:text-lg" style={{ color: "var(--app-muted)" }}>
+              Every tool in Lerna is built to move a student from raw course material to confident exam prep with less friction and better recall.
+            </p>
 
-            <div className="mt-10 grid gap-8 md:grid-cols-2">
-              <article>
-                <div className="rounded-3xl border p-6" style={{ borderColor: "var(--app-border)", backgroundColor: "var(--app-card)" }}>
-                  <div
-                    className="rounded-3xl p-6"
+            <div
+              className="process-showcase mt-10 rounded-[2rem] p-4 sm:p-6 lg:p-7"
+              style={{
+                background: "transparent",
+                boxShadow: "none",
+              }}
+            >
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {showcaseCards.map((card, index) => (
+                  <article
+                    key={card.title}
+                    className={`process-card process-card-${(index % 3) + 1} overflow-hidden rounded-[1.4rem] border p-4 sm:p-5`}
                     style={{
-                      backgroundColor: "var(--app-bg)",
-                      color: "var(--app-fg)",
-                      boxShadow: "inset 0 1px 0 color-mix(in srgb, var(--app-border) 45%, transparent)",
+                      borderColor: "color-mix(in srgb, var(--app-border) 85%, white 15%)",
+                      background: card.tone,
                     }}
                   >
-                    <p className="text-sm font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--app-muted)" }}>
-                      Quick Start
-                    </p>
-                    <h3 className="mt-2 text-2xl font-extrabold leading-tight sm:text-4xl">Hey David, what are you studying today?</h3>
-                    <p className="mt-2 text-sm" style={{ color: "var(--app-muted)" }}>
-                      Choose how you want to begin and Lerna will build your study set instantly.
-                    </p>
-                    <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                      {[
-                        { label: "Upload", icon: "↑", hint: "Files, docs, slides" },
-                        { label: "Paste", icon: "⛓", hint: "Text, links, notes" },
-                        { label: "Record", icon: "●", hint: "Live class audio" },
-                      ].map((item) => (
-                        <div
-                          key={item.label}
-                          className="rounded-2xl border p-3 transition-all duration-200 hover:-translate-y-px hover:shadow-[0_8px_22px_rgba(47,124,240,0.16)]"
-                          style={{ borderColor: "var(--app-border)", backgroundColor: "var(--app-card)" }}
-                        >
-                          <p className="text-sm font-semibold">
-                            <span className="mr-2" style={{ color: "var(--app-accent-strong)" }}>{item.icon}</span>
-                            {item.label}
-                          </p>
-                          <p className="mt-1 text-xs" style={{ color: "var(--app-muted)" }}>
-                            {item.hint}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <p className="mt-4 text-lg font-semibold leading-snug sm:text-2xl md:text-3xl">
-                  <span style={{ color: "var(--app-accent-strong)" }}>Upload or Paste Content:</span> Whether it is your class notes, a YouTube video, or a webpage.
-                </p>
-              </article>
-
-              <article>
-                <div className="rounded-3xl border p-6" style={{ borderColor: "var(--app-border)", backgroundColor: "var(--app-card)" }}>
-                  <div className="rounded-3xl p-6" style={{ backgroundColor: "var(--app-bg)", color: "var(--app-fg)" }}>
-                    <div className="rounded-2xl border p-6" style={{ borderColor: "var(--app-border)", backgroundColor: "var(--app-card)" }}>
-                      <p className="text-center text-base">What causes Earth&apos;s seasons?</p>
-                    </div>
-                    <div className="-mt-2 ml-auto w-[85%] rounded-2xl border p-6 shadow-md" style={{ borderColor: "var(--app-border)", backgroundColor: "var(--app-card)" }}>
-                      <p className="text-center text-base">Earth&apos;s tilt and orbit around the Sun.</p>
-                    </div>
-                  </div>
-                </div>
-                <p className="mt-4 text-lg font-semibold leading-snug sm:text-2xl md:text-3xl">
-                  <span style={{ color: "var(--app-accent-strong)" }}>Instant Flashcards:</span> Turn hours of study into minutes with AI generated flashcards.
-                </p>
-              </article>
-
-              <article>
-                <div className="rounded-3xl border p-6" style={{ borderColor: "var(--app-border)", backgroundColor: "var(--app-card)" }}>
-                  <div className="rounded-3xl p-6" style={{ backgroundColor: "var(--app-bg)", color: "var(--app-fg)" }}>
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-[120px_1fr]">
-                      <div className="rounded-xl p-4 text-center" style={{ backgroundColor: "var(--app-card)" }}>
-                        <p className="text-4xl font-bold">86%</p>
-                        <p className="text-xs font-semibold" style={{ color: "var(--app-muted)" }}>Overall Grade</p>
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--app-accent-strong)" }}>
+                          {card.kicker}
+                        </p>
+                        <h3 className="mt-2 max-w-[16ch] text-xl font-semibold leading-tight sm:text-2xl">
+                          {card.title}
+                        </h3>
                       </div>
-                      <div className="rounded-xl p-4" style={{ backgroundColor: "var(--app-card)" }}>
-                        <p className="text-lg font-bold">Detailed Feedback</p>
-                        <div className="mt-2 space-y-2 text-xs" style={{ color: "var(--app-muted)" }}>
-                          <p>Excellent explanation of core ideas and evidence.</p>
-                          <p>Clear writing with strong topic structure.</p>
-                          <p>Improve examples depth in one section.</p>
-                        </div>
-                      </div>
+                      <span
+                        className="rounded-full border px-2.5 py-1 text-[10px] font-semibold"
+                        style={{
+                          borderColor: "color-mix(in srgb, var(--app-border) 70%, white 30%)",
+                          backgroundColor: "color-mix(in srgb, var(--app-bg) 84%, var(--app-card) 16%)",
+                          color: "var(--app-muted)",
+                        }}
+                      >
+                        {card.chrome}
+                      </span>
                     </div>
-                  </div>
-                </div>
-                <p className="mt-4 text-lg font-semibold leading-snug sm:text-2xl md:text-3xl">
-                  <span style={{ color: "var(--app-accent-strong)" }}>Smart Paper Grading:</span> Get detailed feedback based on your rubric.
-                </p>
-              </article>
 
-              <article>
-                <div className="rounded-3xl border p-6" style={{ borderColor: "var(--app-border)", backgroundColor: "var(--app-card)" }}>
-                  <div className="rounded-3xl border p-6" style={{ borderColor: "var(--app-border)", backgroundColor: "var(--app-bg)", color: "var(--app-fg)" }}>
-                    <p className="text-2xl font-bold sm:text-3xl">Calculus &amp; Functions</p>
-                    <div className="mt-4 space-y-2 text-sm">
-                      <p><span className="mr-2 rounded-md px-2 py-1" style={{ backgroundColor: "var(--app-card)" }}>63</span> <span className="rounded-md px-2 py-1" style={{ backgroundColor: "rgba(239,68,68,0.15)", color: "#fca5a5" }}>Unlearned</span></p>
-                      <p><span className="mr-2 rounded-md px-2 py-1" style={{ backgroundColor: "var(--app-card)" }}>2</span> <span className="rounded-md px-2 py-1" style={{ backgroundColor: "rgba(245,158,11,0.15)", color: "#fcd34d" }}>Learning</span></p>
-                      <p><span className="mr-2 rounded-md px-2 py-1" style={{ backgroundColor: "var(--app-card)" }}>6</span> <span className="rounded-md px-2 py-1" style={{ backgroundColor: "rgba(59,130,246,0.15)", color: "#93c5fd" }}>Learned</span></p>
-                      <p><span className="mr-2 rounded-md px-2 py-1" style={{ backgroundColor: "var(--app-card)" }}>9</span> <span className="rounded-md px-2 py-1" style={{ backgroundColor: "rgba(16,185,129,0.15)", color: "#86efac" }}>Mastered</span></p>
+                    <p className="mt-3 max-w-[32ch] text-sm leading-6 sm:text-[15px]" style={{ color: "var(--app-muted)" }}>
+                      {card.copy}
+                    </p>
+
+                    <div
+                      className="mt-4 rounded-[1.15rem] border p-3.5"
+                      style={{
+                        borderColor: "color-mix(in srgb, var(--app-border) 72%, white 28%)",
+                        backgroundColor: "transparent",
+                      }}
+                    >
+                      {card.type === "upload" ? (
+                        <div className="space-y-3">
+                          <div className="flex flex-wrap gap-2">
+                            {["PDF", "Audio", "Paste", "Link"].map((chip) => (
+                              <span
+                                key={chip}
+                                className="rounded-full border px-2.5 py-1 text-[11px] font-semibold"
+                                style={{
+                                  borderColor: "var(--app-border)",
+                                  backgroundColor: "color-mix(in srgb, var(--app-accent) 14%, transparent)",
+                                }}
+                              >
+                                {chip}
+                              </span>
+                            ))}
+                          </div>
+                          <div className="flex items-center gap-2.5">
+                            {[0, 1, 2].map((dot) => (
+                              <span
+                                key={dot}
+                                className="process-signal h-2.5 w-2.5 rounded-full"
+                                style={{
+                                  animationDelay: `${dot * 150}ms`,
+                                  backgroundColor: "var(--app-accent-strong)",
+                                }}
+                              />
+                            ))}
+                            <div className="h-1.5 flex-1 overflow-hidden rounded-full" style={{ backgroundColor: "color-mix(in srgb, var(--app-border) 70%, transparent)" }}>
+                              <div className="process-loader h-full w-2/3 rounded-full" />
+                            </div>
+                          </div>
+                        </div>
+                      ) : null}
+
+                      {card.type === "guide" ? (
+                        <div className="space-y-2.5">
+                          {[
+                            "Key themes pulled out clearly",
+                            "Important formulas highlighted",
+                            "Examples connected to class context",
+                          ].map((line, lineIndex) => (
+                            <div key={line} className="flex items-center gap-2.5">
+                              <span
+                                className="inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold"
+                                style={{
+                                  color: "var(--app-accent-strong)",
+                                  backgroundColor: "color-mix(in srgb, var(--app-accent) 16%, transparent)",
+                                }}
+                              >
+                                {lineIndex + 1}
+                              </span>
+                              <div className="min-w-0 flex-1">
+                                <div className="h-2 rounded-full" style={{ backgroundColor: "color-mix(in srgb, var(--app-border) 75%, transparent)" }}>
+                                  <div
+                                    className="process-meter h-2 rounded-full"
+                                    style={{ width: `${84 - lineIndex * 14}%` }}
+                                  />
+                                </div>
+                                <p className="mt-1 text-xs sm:text-[13px]" style={{ color: "var(--app-muted)" }}>
+                                  {line}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : null}
+
+                      {card.type === "flashcards" ? (
+                        <div className="relative flex min-h-[148px] items-center justify-center">
+                          <div
+                            className="process-card-stack absolute h-28 w-40 rounded-[1.1rem] border"
+                            style={{
+                              borderColor: "color-mix(in srgb, var(--app-border) 65%, white 35%)",
+                              backgroundColor: "transparent",
+                              transform: "translate(-12px, 8px) rotate(-7deg)",
+                            }}
+                          />
+                          <div
+                            className="process-card-stack relative z-10 h-28 w-40 rounded-[1.1rem] border p-4"
+                            style={{
+                              borderColor: "color-mix(in srgb, var(--app-border) 72%, white 28%)",
+                              backgroundColor: "transparent",
+                              transform: "rotate(-4deg)",
+                            }}
+                          >
+                            <p className="text-3xl font-semibold leading-tight">Right atrium</p>
+                            <p className="mt-3 text-xs" style={{ color: "var(--app-muted)" }}>
+                              Short answer card
+                            </p>
+                          </div>
+                        </div>
+                      ) : null}
+
+                      {card.type === "quiz" ? (
+                        <div className="space-y-3">
+                          <p className="text-sm font-semibold">Which process produces ATP for the cell?</p>
+                          {[
+                            { label: "Cellular respiration", active: true },
+                            { label: "Mitosis", active: false },
+                            { label: "Diffusion", active: false },
+                          ].map((option) => (
+                            <div
+                              key={option.label}
+                              className="flex items-center justify-between rounded-xl border px-3 py-2"
+                              style={{
+                                borderColor: option.active
+                                  ? "color-mix(in srgb, var(--app-accent-strong) 68%, var(--app-border))"
+                                  : "var(--app-border)",
+                                backgroundColor: option.active
+                                  ? "color-mix(in srgb, var(--app-accent) 14%, transparent)"
+                                  : "color-mix(in srgb, var(--app-bg) 88%, var(--app-card) 12%)",
+                              }}
+                            >
+                              <span className="text-sm">{option.label}</span>
+                              <span
+                                className="inline-flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold"
+                                style={{
+                                  color: option.active ? "var(--app-accent-strong)" : "var(--app-muted)",
+                                  backgroundColor: option.active
+                                    ? "color-mix(in srgb, var(--app-accent) 20%, transparent)"
+                                    : "color-mix(in srgb, var(--app-border) 50%, transparent)",
+                                }}
+                              >
+                                {option.active ? "A" : "•"}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : null}
+
+                      {card.type === "essay" ? (
+                        <div className="space-y-3">
+                          <div className="flex items-end justify-between">
+                            <div>
+                              <p className="text-xs font-semibold uppercase tracking-[0.12em]" style={{ color: "var(--app-muted)" }}>
+                                Grade preview
+                              </p>
+                              <p className="mt-1 text-4xl font-bold leading-none">86%</p>
+                            </div>
+                            <span
+                              className="rounded-full border px-2.5 py-1 text-[11px] font-semibold"
+                              style={{
+                                borderColor: "var(--app-border)",
+                                color: "var(--app-accent-strong)",
+                                backgroundColor: "color-mix(in srgb, var(--app-accent) 12%, transparent)",
+                              }}
+                            >
+                              Strong draft
+                            </span>
+                          </div>
+                          <div className="h-2.5 overflow-hidden rounded-full" style={{ backgroundColor: "color-mix(in srgb, var(--app-border) 70%, transparent)" }}>
+                            <div className="process-loader h-full w-[86%] rounded-full" />
+                          </div>
+                          <div className="grid grid-cols-3 gap-2 text-center text-[11px] font-medium" style={{ color: "var(--app-muted)" }}>
+                            <span className="rounded-lg border px-2 py-1.5" style={{ borderColor: "var(--app-border)" }}>Clarity</span>
+                            <span className="rounded-lg border px-2 py-1.5" style={{ borderColor: "var(--app-border)" }}>Structure</span>
+                            <span className="rounded-lg border px-2 py-1.5" style={{ borderColor: "var(--app-border)" }}>Evidence</span>
+                          </div>
+                        </div>
+                      ) : null}
+
+                      {card.type === "chat" ? (
+                        <div className="space-y-3">
+                          <div
+                            className="max-w-[85%] rounded-2xl rounded-bl-md border px-3 py-2 text-sm"
+                            style={{
+                              borderColor: "var(--app-border)",
+                              backgroundColor: "color-mix(in srgb, var(--app-bg) 88%, var(--app-card) 12%)",
+                            }}
+                          >
+                            Explain the hardest idea from this chapter.
+                          </div>
+                          <div
+                            className="ml-auto max-w-[88%] rounded-2xl rounded-br-md border px-3 py-2 text-sm"
+                            style={{
+                              borderColor: "color-mix(in srgb, var(--app-accent-strong) 60%, var(--app-border))",
+                              backgroundColor: "color-mix(in srgb, var(--app-accent) 14%, transparent)",
+                            }}
+                          >
+                            Lerna uses your notes to break it down into plain steps and examples.
+                          </div>
+                        </div>
+                      ) : null}
                     </div>
-                  </div>
-                </div>
-                <p className="mt-4 text-lg font-semibold leading-snug sm:text-2xl md:text-3xl">
-                  <span style={{ color: "var(--app-accent-strong)" }}>Track Your Progress:</span> Monitor your growth and master subjects faster.
-                </p>
-              </article>
+                  </article>
+                ))}
+              </div>
             </div>
 
-            <div className="mt-12 flex justify-center">
-              <Link
-                href="/dashboard"
-                className="rounded-2xl px-7 py-3 text-lg font-bold text-white shadow-[0_8px_24px_rgba(249,115,22,0.35)] transition-all duration-200 hover:-translate-y-px hover:shadow-[0_0_26px_rgba(47,124,240,0.5)] sm:px-12 sm:py-4 sm:text-4xl"
-                style={{ background: "linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%)", boxShadow: "0 8px 24px rgba(37,99,235,0.35)" }}
-              >
-                Get Started Now
-              </Link>
-            </div>
           </div>
         </div>
 
@@ -499,7 +627,7 @@ export default async function Home() {
           style={{ backgroundColor: "var(--app-bg)" }}
         >
           <div className="mx-auto max-w-7xl">
-            <h2 className="text-center text-3xl font-bold md:text-5xl">
+            <h2 className="text-center text-2xl font-bold md:text-4xl">
               Trusted by 100k+ students
             </h2>
 
@@ -520,12 +648,12 @@ export default async function Home() {
               practical learning workflows.
             </p>
 
-            <div className="mt-10 grid gap-8 lg:grid-cols-3">
+            <div className="mx-auto mt-8 grid max-w-6xl gap-5 lg:grid-cols-3">
               {[
                 {
                   title: "Memory That Actually Sticks",
-                  icon: "📘",
-                  tone: "color-mix(in srgb, #34d399 28%, var(--app-card))",
+                  icon: "B",
+                  tone: "color-mix(in srgb, var(--app-accent) 24%, var(--app-card))",
                   old: [
                     "Passive rereading with low retention",
                     "Random revision with no system",
@@ -539,8 +667,8 @@ export default async function Home() {
                 },
                 {
                   title: "Faster Start, Better Personalization",
-                  icon: "⚡",
-                  tone: "color-mix(in srgb, #f59e0b 24%, var(--app-card))",
+                  icon: "Z",
+                  tone: "color-mix(in srgb, var(--app-accent) 20%, var(--app-card))",
                   old: [
                     "Long prep before real studying begins",
                     "One-size-fits-all study materials",
@@ -555,7 +683,7 @@ export default async function Home() {
                 {
                   title: "More Value in One Studyroom",
                   icon: "$",
-                  tone: "color-mix(in srgb, #a78bfa 24%, var(--app-card))",
+                  tone: "color-mix(in srgb, var(--app-accent) 16%, var(--app-card))",
                   old: [
                     "Paying for multiple disconnected tools",
                     "Costly tutoring for routine review",
@@ -573,22 +701,22 @@ export default async function Home() {
                   className="overflow-hidden rounded-3xl border"
                   style={{ borderColor: "var(--app-border)", backgroundColor: "var(--app-card)" }}
                 >
-                  <div className="border-b p-6" style={{ borderColor: "var(--app-border)", backgroundColor: card.tone }}>
-                    <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl text-sm font-bold" style={{ backgroundColor: "color-mix(in srgb, white 70%, transparent)" }}>
+                  <div className="border-b p-5" style={{ borderColor: "var(--app-border)", backgroundColor: card.tone }}>
+                    <div className="mb-2.5 inline-flex h-8 w-8 items-center justify-center rounded-lg text-xs font-bold" style={{ backgroundColor: "color-mix(in srgb, white 70%, transparent)" }}>
                       {card.icon}
                     </div>
-                    <p className="text-2xl font-bold">{card.title}</p>
+                    <p className="text-xl font-bold sm:text-2xl">{card.title}</p>
                   </div>
 
-                  <div className="space-y-6 p-6">
+                  <div className="space-y-5 p-5">
                     <div>
                       <p className="text-sm font-bold tracking-[0.18em]" style={{ color: "var(--app-muted)" }}>
                         BEFORE
                       </p>
-                      <ul className="mt-3 space-y-3 text-base sm:text-lg">
+                      <ul className="mt-3 space-y-2.5 text-base sm:text-lg">
                         {card.old.map((item) => (
                           <li key={item} className="flex items-start gap-3">
-                            <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold" style={{ backgroundColor: "color-mix(in srgb, #ef4444 20%, transparent)", color: "#ef4444" }}>
+                            <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold" style={{ backgroundColor: "color-mix(in srgb, var(--app-accent) 18%, transparent)", color: "var(--app-muted)" }}>
                               x
                             </span>
                             <span>{item}</span>
@@ -599,7 +727,15 @@ export default async function Home() {
 
                     <div className="flex items-center gap-3">
                       <div className="h-px flex-1" style={{ backgroundColor: "var(--app-border)" }} />
-                      <span className="text-2xl font-bold" style={{ color: "var(--app-accent-strong)" }}>v</span>
+                      <span
+                        className="inline-flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold"
+                        style={{
+                          color: "var(--app-accent-strong)",
+                          backgroundColor: "color-mix(in srgb, var(--app-accent) 22%, transparent)",
+                        }}
+                      >
+                        ✓
+                      </span>
                       <div className="h-px flex-1" style={{ backgroundColor: "var(--app-border)" }} />
                     </div>
 
@@ -607,11 +743,11 @@ export default async function Home() {
                       <p className="text-sm font-bold tracking-[0.18em]" style={{ color: "var(--app-accent-strong)" }}>
                         WITH LERNA
                       </p>
-                      <ul className="mt-3 space-y-3 text-base sm:text-lg">
+                      <ul className="mt-3 space-y-2.5 text-base sm:text-lg">
                         {card.newWay.map((item) => (
                           <li key={item} className="flex items-start gap-3">
-                            <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold" style={{ backgroundColor: "color-mix(in srgb, #22c55e 20%, transparent)", color: "#16a34a" }}>
-                              v
+                            <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold" style={{ backgroundColor: "color-mix(in srgb, var(--app-accent) 26%, transparent)", color: "var(--app-accent-strong)" }}>
+                              ✓
                             </span>
                             <span>{item}</span>
                           </li>
@@ -624,8 +760,6 @@ export default async function Home() {
             </div>
           </div>
         </div>
-
-        <PricingSection compact />
 
         <div
           className="relative left-1/2 right-1/2 w-screen -translate-x-1/2 px-3 py-10 sm:px-6 sm:py-14"
@@ -708,7 +842,20 @@ export default async function Home() {
           <div className="mx-auto max-w-7xl">
             <div className="grid gap-10 md:grid-cols-2 xl:grid-cols-5">
               <div className="xl:col-span-1">
-                <p className="text-xl font-extrabold tracking-[0.2em] sm:text-2xl">LERNA AI</p>
+                <div className="flex items-center">
+                  <img
+                    src="/lerna-mobile-logo.svg"
+                    alt="lerna"
+                    className="h-12 w-auto object-contain sm:hidden"
+                    loading="lazy"
+                  />
+                  <img
+                    src="/lerna-web-logo.svg"
+                    alt="lerna"
+                    className="hidden h-10 w-auto object-contain sm:block"
+                    loading="lazy"
+                  />
+                </div>
                 <p className="mt-4 text-base leading-relaxed sm:text-lg" style={{ color: "var(--app-muted)" }}>
                   Study tools built to help students understand faster, remember longer, and perform better in class.
                 </p>
@@ -773,6 +920,8 @@ export default async function Home() {
     </main>
   );
 }
+
+
 
 
 

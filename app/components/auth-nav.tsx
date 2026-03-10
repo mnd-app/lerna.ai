@@ -11,13 +11,11 @@ type User = {
   verified: boolean;
 };
 
-const LANGS = ["EN", "ES", "FR"] as const;
-
 export default function AuthNav() {
   const pathname = usePathname();
+  const isHome = pathname === "/";
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [lang, setLang] = useState<(typeof LANGS)[number]>("EN");
 
   useEffect(() => {
     let isMounted = true;
@@ -45,27 +43,11 @@ export default function AuthNav() {
     };
     window.addEventListener("auth-changed", onAuthChanged);
 
-    try {
-      const saved = localStorage.getItem("lerna-lang");
-      if (saved && LANGS.includes(saved as (typeof LANGS)[number])) {
-        setLang(saved as (typeof LANGS)[number]);
-      }
-    } catch {}
-
     return () => {
       isMounted = false;
       window.removeEventListener("auth-changed", onAuthChanged);
     };
   }, [pathname]);
-
-  function cycleLanguage() {
-    const idx = LANGS.indexOf(lang);
-    const next = LANGS[(idx + 1) % LANGS.length];
-    setLang(next);
-    try {
-      localStorage.setItem("lerna-lang", next);
-    } catch {}
-  }
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -103,18 +85,6 @@ export default function AuthNav() {
         >
           Support
         </Link>
-        <button
-          type="button"
-          onClick={cycleLanguage}
-          className="rounded-full border border-transparent px-2.5 py-1.5 text-sm font-medium transition-all duration-200 hover:-translate-y-px hover:border-white/25 hover:shadow-[0_0_20px_rgba(123,163,255,0.25)] sm:px-3"
-          style={{
-            color: "var(--app-fg)",
-            borderColor: "color-mix(in srgb, var(--app-border) 65%, transparent)",
-            backgroundColor: "color-mix(in srgb, var(--app-card) 78%, transparent)",
-          }}
-        >
-          {lang} v
-        </button>
         <Link
           href="/auth?mode=login"
           className="rounded-full border border-transparent px-3 py-1.5 text-sm font-medium transition-all duration-200 hover:-translate-y-px hover:shadow-[0_0_20px_rgba(123,163,255,0.25)]"
@@ -129,10 +99,19 @@ export default function AuthNav() {
           href="/auth?mode=signup"
           className="rounded-full border px-5 py-1.5 text-sm font-semibold transition-all duration-200 hover:-translate-y-px hover:shadow-[0_0_20px_rgba(123,163,255,0.35)]"
           style={{
-            borderColor: "color-mix(in srgb, var(--app-fg) 85%, black 15%)",
-            backgroundColor: "white",
-            color: "black",
-            boxShadow: "0 0 18px color-mix(in srgb, var(--app-accent) 20%, transparent)",
+            borderColor: isHome
+              ? "transparent"
+              : "color-mix(in srgb, var(--app-fg) 85%, black 15%)",
+            background: isHome
+              ? "linear-gradient(135deg, color-mix(in srgb, var(--app-accent-strong) 90%, white 10%), var(--app-accent))"
+              : "none",
+            backgroundColor: isHome ? undefined : "white",
+            color: isHome ? "white" : "black",
+            boxShadow: isHome
+              ? "0 8px 24px color-mix(in srgb, var(--app-accent) 34%, transparent)"
+              : "0 0 18px color-mix(in srgb, var(--app-accent) 20%, transparent)",
+            minWidth: isHome ? "160px" : undefined,
+            textAlign: isHome ? "center" : undefined,
           }}
         >
           Get Started
@@ -149,17 +128,6 @@ export default function AuthNav() {
 
   return (
     <>
-      <button
-        type="button"
-        onClick={cycleLanguage}
-        className="rounded-full border border-transparent px-2.5 py-1.5 text-sm font-medium transition-all duration-200 hover:-translate-y-px hover:border-white/25 hover:shadow-[0_0_20px_rgba(123,163,255,0.25)] sm:px-3"
-        style={{
-          color: "var(--app-muted)",
-          backgroundColor: "color-mix(in srgb, var(--app-card) 80%, transparent)",
-        }}
-      >
-        {lang} v
-      </button>
       <Link href="/pricing" className="hidden rounded-full border border-transparent px-3 py-1.5 text-sm transition-all duration-200 hover:-translate-y-px hover:border-white/25 hover:shadow-[0_0_20px_rgba(123,163,255,0.25)] sm:inline-flex" style={activePillStyle(pathname === "/pricing")}>
         Pricing
       </Link>

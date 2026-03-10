@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import StudyroomHeaderActions from "./studyroom-header-actions";
 import ThemeToggle from "./theme-toggle";
 
 type User = {
@@ -12,13 +13,26 @@ type User = {
   verified: boolean;
 };
 
-const LANGS = ["EN", "ES", "FR"] as const;
-
 export default function MobileNav() {
   const pathname = usePathname();
+  const isStudyroomHome = pathname === "/studyroom";
+  const isStudyroomRoute =
+    pathname === "/studyroom" || pathname.startsWith("/studyroom/");
+
+  if (isStudyroomHome) {
+    return <StudyroomHeaderActions mobile />;
+  }
+
+  if (isStudyroomRoute) {
+    return null;
+  }
+
+  return <StandardMobileNav pathname={pathname} />;
+}
+
+function StandardMobileNav({ pathname }: { pathname: string }) {
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
-  const [lang, setLang] = useState<(typeof LANGS)[number]>("EN");
 
   useEffect(() => {
     let mounted = true;
@@ -49,15 +63,6 @@ export default function MobileNav() {
       window.removeEventListener("auth-changed", onAuthChanged);
     };
   }, []);
-
-  function cycleLanguage() {
-    const idx = LANGS.indexOf(lang);
-    const next = LANGS[(idx + 1) % LANGS.length];
-    setLang(next);
-    try {
-      localStorage.setItem("lerna-lang", next);
-    } catch {}
-  }
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -114,15 +119,6 @@ export default function MobileNav() {
       >
           <div className="divide-y" style={{ borderColor: "color-mix(in srgb, var(--app-border) 75%, transparent)" }}>
             <div className="space-y-1 pb-2">
-            <Link
-              href="/studyroom"
-              onClick={() => setOpen(false)}
-              className={menuLinkClass}
-              style={linkStyle(pathname === "/studyroom" || pathname.startsWith("/studyroom/") || pathname === "/dashboard")}
-            >
-              Studyroom
-            </Link>
-
             <Link href="/pricing" onClick={() => setOpen(false)} className={menuLinkClass} style={linkStyle(pathname === "/pricing")}>
               Pricing
             </Link>
@@ -160,15 +156,7 @@ export default function MobileNav() {
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-2 py-2">
-              <button
-                type="button"
-                onClick={cycleLanguage}
-                className="rounded-lg px-2 py-2.5 text-sm font-medium tracking-[0.01em] transition-colors duration-150 hover:bg-[color:color-mix(in_srgb,var(--app-bg)_80%,var(--app-card)_20%)]"
-                style={{ color: "var(--app-muted)" }}
-              >
-                {lang} v
-              </button>
+            <div className="py-2">
               <div className="flex items-center justify-center rounded-lg px-2">
                 <ThemeToggle />
               </div>

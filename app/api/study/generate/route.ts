@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { createSubject } from "@/lib/subjects";
-import { getCurrentUserFromCookieHeader } from "@/lib/auth";
+import {
+  assertUserCanUpload,
+  FREE_UPLOAD_LIMIT,
+  getCurrentUserFromCookieHeader,
+  incrementUserUploadUsage,
+  UploadLimitError,
+} from "@/lib/auth";
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
@@ -82,6 +88,9 @@ export async function POST(request: Request) {
     if (user && !user.onboardingCompleted) {
       return NextResponse.json({ error: "Complete onboarding first." }, { status: 403 });
     }
+    if (user) {
+      await assertUserCanUpload(user.id);
+    }
     const body = (await request.json()) as { notes?: string };
     const notes = body.notes?.trim() ?? "";
     if (!notes) {
@@ -153,12 +162,26 @@ export async function POST(request: Request) {
       flashcards: parsed.flashcards,
     });
 
+    if (user) {
+      await incrementUserUploadUsage(user.id);
+    }
+
     return NextResponse.json({
       subject,
       content: parsed,
       message: "Study content generated and saved.",
     });
-  } catch {
+  } catch (error) {
+    if (error instanceof UploadLimitError) {
+      return NextResponse.json(
+        {
+          error: `Free plan allows up to ${FREE_UPLOAD_LIMIT} uploads total across all methods. Upgrade to Pro for unlimited access.`,
+          code: "UPLOAD_LIMIT_REACHED",
+          limit: FREE_UPLOAD_LIMIT,
+        },
+        { status: 402 },
+      );
+    }
     return NextResponse.json({ error: "Unexpected error while generating study content." }, { status: 500 });
   }
 }

@@ -113,6 +113,10 @@ export default function UploadPage() {
 
         const payload = (await response.json()) as { error?: string; subject?: SubjectRecord };
         if (!response.ok || !payload.subject) {
+          if (response.status === 402) {
+            router.push("/pricing");
+            return;
+          }
           setError(payload.error ?? "Failed to generate study content.");
           return;
         }
@@ -133,6 +137,10 @@ export default function UploadPage() {
 
       const payload = (await response.json()) as { error?: string; subject?: SubjectRecord };
       if (!response.ok || !payload.subject) {
+        if (response.status === 402) {
+          router.push("/pricing");
+          return;
+        }
         setError(payload.error ?? "Failed to save source.");
         return;
       }

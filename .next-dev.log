@@ -1,0 +1,152 @@
+
+> lerna.ai@0.1.0 dev
+> next dev
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://10.0.0.64:3000
+- Environments: .env.local
+
+✓ Starting...
+Creating turbopack project { dir: 'C:\\Users\\User\\mnd.app', testMode: true }
+✓ Ready in 3.4s
+ GET /studyroom 200 in 1419ms (compile: 1071ms, render: 348ms)
+ GET /api/auth/me 200 in 200ms (compile: 149ms, render: 52ms)
+ GET /api/subjects 200 in 69ms (compile: 57ms, render: 12ms)
+✓ Compiled in 163ms
+ GET /studyroom 200 in 264ms (compile: 88ms, render: 176ms)
+ GET /api/auth/me 200 in 12ms (compile: 4ms, render: 9ms)
+ GET /api/subjects 200 in 10ms (compile: 2ms, render: 8ms)
+✓ Compiled in 76ms
+✓ Compiled in 113ms
+✓ Compiled in 101ms
+ GET /api/auth/me 200 in 52ms (compile: 40ms, render: 12ms)
+ GET /studyroom 200 in 258ms (compile: 81ms, render: 177ms)
+ GET /api/auth/me 200 in 10ms (compile: 3ms, render: 7ms)
+ GET /api/subjects 200 in 11ms (compile: 3ms, render: 8ms)
+✓ Compiled in 86ms
+ GET /studyroom 200 in 241ms (compile: 90ms, render: 151ms)
+ GET /api/auth/me 200 in 15ms (compile: 4ms, render: 12ms)
+ GET /api/subjects 200 in 12ms (compile: 2ms, render: 10ms)
+✓ Compiled in 91ms
+ GET /studyroom 200 in 346ms (compile: 122ms, render: 224ms)
+ GET /studyroom 200 in 171ms (compile: 42ms, render: 129ms)
+ GET /api/auth/me 200 in 16ms (compile: 4ms, render: 11ms)
+ GET /api/subjects 200 in 22ms (compile: 3ms, render: 19ms)
+✓ Compiled in 64ms
+✓ Compiled in 96ms
+ GET /api/auth/me 200 in 16ms (compile: 4ms, render: 12ms)
+ GET /api/subjects 200 in 14ms (compile: 3ms, render: 11ms)
+✓ Compiled in 196ms
+✓ Compiled in 86ms
+✓ Compiled in 63ms
+✓ Compiled in 69ms
+ GET /api/auth/me 200 in 22ms (compile: 13ms, render: 9ms)
+ GET /studyroom 200 in 385ms (compile: 124ms, render: 261ms)
+ GET /api/auth/me 200 in 11ms (compile: 3ms, render: 9ms)
+ GET /api/subjects 200 in 12ms (compile: 2ms, render: 10ms)
+ GET / 200 in 355ms (compile: 250ms, render: 106ms)
+ GET /api/auth/me 200 in 83ms (compile: 7ms, render: 76ms)
+ GET /studyroom 200 in 163ms (compile: 5ms, render: 158ms)
+ GET /studyroom 200 in 105ms (compile: 11ms, render: 94ms)
+ GET /api/auth/me 200 in 23ms (compile: 5ms, render: 18ms)
+ GET /api/auth/me 200 in 12ms (compile: 3ms, render: 9ms)
+ GET /api/auth/me 200 in 19ms (compile: 6ms, render: 13ms)
+ GET /api/auth/me 200 in 15ms (compile: 6ms, render: 9ms)
+ GET /api/auth/me 200 in 22ms (compile: 7ms, render: 15ms)
+ GET /api/subjects 200 in 16ms (compile: 4ms, render: 13ms)
+ GET / 200 in 59ms (compile: 6ms, render: 53ms)
+ GET /api/auth/me 200 in 127ms (compile: 4ms, render: 124ms)
+ GET /studyroom 200 in 131ms (compile: 5ms, render: 126ms)
+ GET /studyroom 200 in 77ms (compile: 6ms, render: 71ms)
+ GET /api/auth/me 200 in 18ms (compile: 5ms, render: 13ms)
+ GET /api/auth/me 200 in 22ms (compile: 2ms, render: 20ms)
+ GET /api/auth/me 200 in 12ms (compile: 4ms, render: 8ms)
+ GET /api/auth/me 200 in 13ms (compile: 3ms, render: 10ms)
+ GET /api/auth/me 200 in 16ms (compile: 4ms, render: 12ms)
+ GET /api/subjects 200 in 23ms (compile: 5ms, render: 18ms)
+ POST /api/auth/logout 200 in 123ms (compile: 103ms, render: 20ms)
+ GET /auth?mode=login 200 in 247ms (compile: 68ms, render: 179ms)
+ GET /api/auth/me 401 in 12ms (compile: 4ms, render: 8ms)
+ GET /api/auth/me 401 in 8ms (compile: 4ms, render: 4ms)
+ GET / 200 in 211ms (compile: 7ms, render: 204ms)
+ GET /api/auth/me 401 in 9ms (compile: 3ms, render: 5ms)
+✓ Compiled in 321ms
+ GET /auth?mode=login 200 in 165ms (compile: 118ms, render: 48ms)
+ GET /api/auth/me 401 in 15ms (compile: 5ms, render: 10ms)
+ POST /api/auth/signup 200 in 626ms (compile: 447ms, render: 178ms)
+ GET /api/auth/me 200 in 15ms (compile: 5ms, render: 11ms)
+ GET /api/auth/me 200 in 13ms (compile: 3ms, render: 9ms)
+ GET /auth?mode=login 200 in 116ms (compile: 64ms, render: 52ms)
+ POST /api/auth/login 200 in 419ms (compile: 196ms, render: 223ms)
+ GET /api/auth/me 200 in 289ms (compile: 5ms, render: 284ms)
+ GET /studyroom 200 in 289ms (compile: 206ms, render: 83ms)
+ GET /auth?mode=login 200 in 306ms (compile: 12ms, render: 293ms)
+ GET /api/auth/me 200 in 13ms (compile: 3ms, render: 10ms)
+ GET /api/auth/me 200 in 11ms (compile: 3ms, render: 7ms)
+ GET /api/auth/me 200 in 10ms (compile: 3ms, render: 8ms)
+ GET /api/subjects 200 in 14ms (compile: 4ms, render: 10ms)
+ PATCH /api/profile/onboarding 200 in 274ms (compile: 247ms, render: 27ms)
+✓ Compiled in 184ms
+ GET /studyroom 200 in 73ms (compile: 5ms, render: 68ms)
+ GET /upload 200 in 1455ms (compile: 1404ms, render: 51ms)
+ GET /api/auth/me 200 in 12ms (compile: 2ms, render: 10ms)
+ GET /api/auth/me 200 in 12ms (compile: 3ms, render: 9ms)
+ GET /api/auth/me 200 in 18ms (compile: 3ms, render: 15ms)
+ GET /api/auth/me 200 in 23ms (compile: 6ms, render: 17ms)
+ GET /api/auth/me 200 in 16ms (compile: 5ms, render: 12ms)
+ GET /api/auth/me 200 in 9ms (compile: 3ms, render: 6ms)
+ GET /api/auth/me 200 in 10ms (compile: 2ms, render: 8ms)
+ GET /api/auth/me 200 in 15ms (compile: 3ms, render: 12ms)
+ GET /api/subjects 200 in 18ms (compile: 4ms, render: 15ms)
+✓ Compiled in 96ms
+ GET /studyroom 200 in 57ms (compile: 4ms, render: 54ms)
+✓ Compiled in 358ms
+✓ Compiled in 110ms
+✓ Compiled in 202ms
+✓ Compiled in 249ms
+ POST /api/auth/logout 200 in 7ms (compile: 3ms, render: 4ms)
+ GET /auth?mode=login 200 in 268ms (compile: 82ms, render: 186ms)
+ GET /api/auth/me 401 in 11ms (compile: 4ms, render: 7ms)
+ GET /api/auth/me 401 in 9ms (compile: 3ms, render: 6ms)
+ POST /api/auth/signup 200 in 101ms (compile: 3ms, render: 98ms)
+ GET /api/auth/me 200 in 18ms (compile: 3ms, render: 15ms)
+ GET /api/auth/me 200 in 13ms (compile: 3ms, render: 11ms)
+ GET /auth?mode=login 200 in 75ms (compile: 46ms, render: 29ms)
+ POST /api/auth/login 200 in 73ms (compile: 3ms, render: 70ms)
+ GET /api/auth/me 200 in 175ms (compile: 4ms, render: 170ms)
+ GET /studyroom 200 in 169ms (compile: 79ms, render: 90ms)
+ GET /auth?mode=login 200 in 208ms (compile: 9ms, render: 199ms)
+ GET /api/auth/me 200 in 16ms (compile: 4ms, render: 12ms)
+ GET /api/auth/me 200 in 16ms (compile: 3ms, render: 13ms)
+ GET /api/auth/me 200 in 10ms (compile: 3ms, render: 7ms)
+ GET /api/subjects 200 in 13ms (compile: 3ms, render: 10ms)
+ PATCH /api/profile/onboarding 200 in 19ms (compile: 2ms, render: 16ms)
+✓ Compiled in 104ms
+✓ Compiled in 167ms
+ GET /api/auth/me 200 in 14ms (compile: 5ms, render: 9ms)
+ GET /api/subjects 200 in 15ms (compile: 4ms, render: 11ms)
+✓ Compiled in 233ms
+ POST /api/auth/logout 200 in 14ms (compile: 6ms, render: 8ms)
+ GET /auth?mode=login 200 in 178ms (compile: 7ms, render: 171ms)
+ GET /api/auth/me 401 in 9ms (compile: 3ms, render: 6ms)
+ GET /api/auth/me 401 in 9ms (compile: 3ms, render: 6ms)
+ GET / 200 in 628ms (compile: 295ms, render: 333ms)
+ GET /api/auth/me 401 in 12ms (compile: 5ms, render: 7ms)
+ GET / 200 in 502ms (compile: 175ms, render: 326ms)
+ GET / 200 in 353ms (compile: 129ms, render: 224ms)
+ GET / 200 in 233ms (compile: 92ms, render: 141ms)
+ GET /auth?mode=login 200 in 29ms (compile: 5ms, render: 24ms)
+ GET /api/auth/me 401 in 7ms (compile: 3ms, render: 4ms)
+ GET / 200 in 66ms (compile: 2ms, render: 63ms)
+ GET /api/auth/me 401 in 6ms (compile: 2ms, render: 4ms)
+ GET /pricing 200 in 174ms (compile: 124ms, render: 50ms)
+ GET /api/auth/me 401 in 23ms (compile: 9ms, render: 14ms)
+ GET / 200 in 68ms (compile: 4ms, render: 64ms)
+ GET /api/auth/me 401 in 6ms (compile: 2ms, render: 4ms)
+ GET /pricing 200 in 45ms (compile: 4ms, render: 41ms)
+ GET /api/auth/me 401 in 8ms (compile: 3ms, render: 5ms)
+ GET / 200 in 84ms (compile: 3ms, render: 81ms)
+ GET /api/auth/me 401 in 7ms (compile: 3ms, render: 4ms)
+✓ Compiled in 75ms
+ GET / 200 in 106ms (compile: 4ms, render: 102ms)

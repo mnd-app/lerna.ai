@@ -4,6 +4,19 @@ import { promises as fs } from "fs";
 
 export type SubjectSourceType = "audio" | "youtube" | "paste_notes" | "document";
 
+// Backward-compatible exports kept to avoid stale build/import failures.
+// Upload limits are now enforced via lib/auth.ts (FREE_UPLOAD_LIMIT).
+export const FREE_STUDY_SET_LIMIT = 3;
+export class StudySetLimitError extends Error {
+  limit: number;
+
+  constructor(limit = FREE_STUDY_SET_LIMIT) {
+    super(`Deprecated study set limit reference (${limit}).`);
+    this.name = "StudySetLimitError";
+    this.limit = limit;
+  }
+}
+
 export type SubjectRecord = {
   id: string;
   userId: string | null;

@@ -1,17 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --app-bg: #f8fbff;
-  --app-bg-soft: #eef4ff;
-  --app-card: #ffffff;
-  --app-card-soft: #f3f8ff;
-  --app-fg: #0a1730;
-  --app-muted: #3e5f92;
-  --app-border: #bfd3f6;
-  --app-accent: #2f7cf0;
-  --app-accent-strong: #0763da;
-  --app-shadow: 0 12px 34px color-mix(in srgb, var(--app-accent) 15%, transparent);
-  --app-shadow-soft: 0 6px 20px color-mix(in srgb, var(--app-accent) 10%, transparent);
+  --app-bg: #ecffff;
+  --app-bg-soft: #d8fbfb;
+  --app-card: rgba(255, 255, 255, 0.58);
+  --app-card-soft: rgba(255, 255, 255, 0.42);
+  --app-fg: #042e30;
+  --app-muted: #2d6f72;
+  --app-border: rgba(47, 223, 223, 0.33);
+  --app-accent: #2fdfdf;
+  --app-accent-strong: #1abfc3;
+  --app-shadow: 0 18px 38px color-mix(in srgb, var(--app-accent) 22%, transparent);
+  --app-shadow-soft: 0 10px 24px color-mix(in srgb, var(--app-accent) 14%, transparent);
 }
 
 @theme inline {
@@ -22,36 +22,39 @@
 }
 
 [data-theme="light"] {
-  --app-bg: #f8fbff;
-  --app-bg-soft: #eef4ff;
-  --app-card: #ffffff;
-  --app-card-soft: #f3f8ff;
-  --app-fg: #0a1730;
-  --app-muted: #3e5f92;
-  --app-border: #bfd3f6;
-  --app-accent: #2f7cf0;
-  --app-accent-strong: #0763da;
-  --app-shadow: 0 12px 34px color-mix(in srgb, var(--app-accent) 15%, transparent);
-  --app-shadow-soft: 0 6px 20px color-mix(in srgb, var(--app-accent) 10%, transparent);
+  --app-bg: #ecffff;
+  --app-bg-soft: #d8fbfb;
+  --app-card: rgba(255, 255, 255, 0.58);
+  --app-card-soft: rgba(255, 255, 255, 0.42);
+  --app-fg: #042e30;
+  --app-muted: #2d6f72;
+  --app-border: rgba(47, 223, 223, 0.33);
+  --app-accent: #2fdfdf;
+  --app-accent-strong: #1abfc3;
+  --app-shadow: 0 18px 38px color-mix(in srgb, var(--app-accent) 22%, transparent);
+  --app-shadow-soft: 0 10px 24px color-mix(in srgb, var(--app-accent) 14%, transparent);
 }
 
 [data-theme="dark"] {
-  --app-bg: #020817;
-  --app-bg-soft: #06142a;
-  --app-card: #0d1d36;
-  --app-card-soft: #11284b;
-  --app-fg: #e7f0ff;
-  --app-muted: #9dc2ff;
-  --app-border: #1f4380;
-  --app-accent: #2f7cf0;
-  --app-accent-strong: #0763da;
-  --app-shadow: 0 16px 36px color-mix(in srgb, black 65%, var(--app-accent) 35%);
-  --app-shadow-soft: 0 8px 20px color-mix(in srgb, black 70%, var(--app-accent) 30%);
+  --app-bg: #020a0c;
+  --app-bg-soft: #041316;
+  --app-card: rgba(8, 27, 32, 0.68);
+  --app-card-soft: rgba(7, 34, 38, 0.58);
+  --app-fg: #d9ffff;
+  --app-muted: #89c9cb;
+  --app-border: rgba(47, 223, 223, 0.24);
+  --app-accent: #2fdfdf;
+  --app-accent-strong: #58ffff;
+  --app-shadow: 0 24px 48px color-mix(in srgb, black 72%, var(--app-accent) 28%);
+  --app-shadow-soft: 0 12px 28px color-mix(in srgb, black 76%, var(--app-accent) 24%);
 }
 
 body {
   min-height: 100vh;
-  background: linear-gradient(180deg, var(--app-bg-soft) 0%, var(--app-bg) 22%, var(--app-bg) 100%);
+  background:
+    radial-gradient(125% 90% at 8% -5%, color-mix(in srgb, var(--app-accent) 32%, transparent), transparent 60%),
+    radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, var(--app-accent) 18%, transparent), transparent 62%),
+    linear-gradient(180deg, var(--app-bg-soft) 0%, var(--app-bg) 24%, var(--app-bg) 100%);
   color: var(--app-fg);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   transition: background 220ms ease, color 220ms ease;
@@ -77,11 +80,13 @@ body {
   border: 1px solid var(--app-border);
   background: linear-gradient(
     165deg,
-    color-mix(in srgb, var(--app-card) 92%, white 8%),
+    color-mix(in srgb, var(--app-card) 88%, white 12%),
     var(--app-card)
   );
   border-radius: 1rem;
   box-shadow: var(--app-shadow-soft);
+  backdrop-filter: blur(14px) saturate(130%);
+  -webkit-backdrop-filter: blur(14px) saturate(130%);
   transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
 }
 
@@ -95,11 +100,13 @@ body {
   border: 1px solid var(--app-border);
   background: linear-gradient(
     160deg,
-    color-mix(in srgb, var(--app-card-soft) 90%, white 10%),
+    color-mix(in srgb, var(--app-card-soft) 86%, white 14%),
     var(--app-card-soft)
   );
   border-radius: 0.9rem;
   box-shadow: var(--app-shadow-soft);
+  backdrop-filter: blur(12px) saturate(130%);
+  -webkit-backdrop-filter: blur(12px) saturate(130%);
 }
 
 .ui-btn-primary {
@@ -216,8 +223,8 @@ body {
 
 .hero-grid {
   background-image:
-    linear-gradient(to right, rgba(65, 104, 210, 0.2) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(65, 104, 210, 0.16) 1px, transparent 1px);
+    linear-gradient(to right, color-mix(in srgb, var(--app-accent) 20%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--app-accent) 14%, transparent) 1px, transparent 1px);
   background-size: 34px 34px;
 }
 
@@ -250,6 +257,115 @@ body {
   width: 62%;
   background: linear-gradient(90deg, var(--app-accent-strong), var(--app-accent));
   animation: heroProgress 5.8s ease-in-out infinite;
+}
+
+.process-showcase {
+  position: relative;
+  overflow: hidden;
+}
+
+.process-showcase::before {
+  content: "";
+  position: absolute;
+  inset: -20% auto auto -10%;
+  width: 22rem;
+  height: 22rem;
+  background: radial-gradient(circle, color-mix(in srgb, var(--app-accent) 14%, transparent), transparent 68%);
+  pointer-events: none;
+}
+
+.process-showcase::after {
+  content: "";
+  position: absolute;
+  inset: auto -8% -28% auto;
+  width: 20rem;
+  height: 20rem;
+  background: radial-gradient(circle, color-mix(in srgb, var(--app-accent-strong) 12%, transparent), transparent 70%);
+  pointer-events: none;
+}
+
+.process-card {
+  position: relative;
+  min-height: 21rem;
+  box-shadow: var(--app-shadow-soft);
+  backdrop-filter: blur(12px) saturate(130%);
+  -webkit-backdrop-filter: blur(12px) saturate(130%);
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.process-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--app-shadow);
+  border-color: color-mix(in srgb, var(--app-accent-strong) 55%, var(--app-border));
+}
+
+.process-card-1 {
+  animation: processFloatA 7.2s ease-in-out infinite;
+}
+
+.process-card-2 {
+  animation: processFloatB 8.3s ease-in-out infinite;
+}
+
+.process-card-3 {
+  animation: processFloatC 7.7s ease-in-out infinite;
+}
+
+@keyframes processFloatA {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-7px); }
+}
+
+@keyframes processFloatB {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(5px); }
+}
+
+@keyframes processFloatC {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+}
+
+@keyframes processSignal {
+  0%, 100% { opacity: 0.35; transform: scale(0.92); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+
+.process-signal {
+  animation: processSignal 1.5s ease-in-out infinite;
+}
+
+@keyframes processLoader {
+  0% {
+    transform: translateX(-20%);
+    opacity: 0.88;
+  }
+  50% {
+    transform: translateX(8%);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-20%);
+    opacity: 0.88;
+  }
+}
+
+.process-loader,
+.process-meter {
+  background: linear-gradient(90deg, var(--app-accent-strong), color-mix(in srgb, var(--app-accent) 78%, white 22%));
+}
+
+.process-loader {
+  animation: processLoader 3.8s ease-in-out infinite;
+}
+
+@keyframes processStack {
+  0%, 100% { transform: translate(-12px, 8px) rotate(-7deg); }
+  50% { transform: translate(-8px, 4px) rotate(-5deg); }
+}
+
+.process-card-stack {
+  animation: processStack 6.5s ease-in-out infinite;
 }
 
 @keyframes trustMarquee {
@@ -337,7 +453,7 @@ body {
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--app-border) 70%, white 30%);
   object-fit: cover;
-  background: #0b1327;
+  background: var(--app-bg);
 }
 
 @media (max-width: 768px) {
@@ -360,6 +476,10 @@ body {
     min-height: 84px;
     font-size: 0.95rem;
   }
+
+  .process-card {
+    min-height: auto;
+  }
 }
 
 [data-theme="light"] .review-card {
@@ -368,18 +488,24 @@ body {
     color-mix(in srgb, var(--app-card) 94%, white 6%),
     color-mix(in srgb, var(--app-card-soft) 92%, var(--app-bg) 8%)
   );
-  border-color: color-mix(in srgb, var(--app-border) 86%, #7ba3ff 14%);
+  border-color: color-mix(in srgb, var(--app-border) 86%, var(--app-accent) 14%);
 }
 
 [data-theme="light"] .review-quote {
-  color: color-mix(in srgb, var(--app-fg) 82%, #1d4ed8 18%);
+  color: color-mix(in srgb, var(--app-fg) 82%, var(--app-accent) 18%);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .hero-float-a,
   .hero-float-b,
   .hero-float-c,
-  .trust-track {
+  .trust-track,
+  .process-card-1,
+  .process-card-2,
+  .process-card-3,
+  .process-signal,
+  .process-loader,
+  .process-card-stack {
     animation: none;
   }
 }
