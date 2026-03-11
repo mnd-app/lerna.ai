@@ -3,6 +3,11 @@ import path from "path";
 import crypto from "crypto";
 import { NextResponse } from "next/server";
 import { getPasswordValidationError } from "@/lib/password-rules";
+import {
+  isSupabaseConfigured,
+  SupabaseRequestError,
+  supabaseFetch,
+} from "@/lib/supabase-rest";
 
 export type OAuthProvider = "google" | "discord" | "apple" | "facebook" | "phone";
 
@@ -27,6 +32,25 @@ export type UserRecord = {
 
 type AuthStore = {
   users: UserRecord[];
+};
+
+type SupabaseUserRow = {
+  id: string;
+  email: string;
+  name: string;
+  preferred_name: string | null;
+  preferred_language: string | null;
+  heard_from: string | null;
+  learner_type: string | null;
+  onboarding_completed: boolean | null;
+  uploads_used: number | null;
+  password_hash: string | null;
+  password_salt: string | null;
+  oauth_providers: Partial<Record<OAuthProvider, string>> | null;
+  verified: boolean | null;
+  bio: string | null;
+  created_at: string | null;
+  updated_at: string | null;
 };
 
 type BaseTokenPayload = {
@@ -68,6 +92,95 @@ export class UploadLimitError extends Error {
     this.limit = limit;
     this.used = used;
   }
+}
+
+function mapUserRow(row: SupabaseUserRow): UserRecord {
+  return {
+    id: row.id,
+    email: row.email.toLowerCase().trim(),
+    name: row.name ?? "User",
+    preferredName: row.preferred_name ?? "",
+    preferredLanguage: row.preferred_language ?? "",
+    heardFrom: row.heard_from ?? "",
+    learnerType: row.learner_type ?? "",
+    onboardingCompleted: row.onboarding_completed ?? false,
+    uploadsUsed: row.uploads_used ?? 0,
+    passwordHash: row.password_hash ?? "",
+    passwordSalt: row.password_salt ?? "",
+    oauthProviders: row.oauth_providers ?? {},
+    verified: row.verified ?? false,
+    bio: row.bio ?? "",
+    createdAt: row.created_at ?? new Date().toISOString(),
+    updatedAt: row.updated_at ?? new Date().toISOString(),
+  };
+}
+
+function toUserInsertRow(input: {
+  id?: string;
+  email: string;
+  name: string;
+  preferredName?: string;
+  preferredLanguage?: string;
+  heardFrom?: string;
+  learnerType?: string;
+  onboardingCompleted?: boolean;
+  uploadsUsed?: number;
+  passwordHash?: string;
+  passwordSalt?: string;
+  oauthProviders?: Partial<Record<OAuthProvider, string>>;
+  verified?: boolean;
+  bio?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}): SupabaseUserRow {
+  return {
+    id: input.id ?? crypto.randomUUID(),
+    email: input.email.toLowerCase().trim(),
+    name: input.name.trim(),
+    preferred_name: input.preferredName ?? "",
+    preferred_language: input.preferredLanguage ?? "",
+    heard_from: input.heardFrom ?? "",
+    learner_type: input.learnerType ?? "",
+    onboarding_completed: input.onboardingCompleted ?? false,
+    uploads_used: input.uploadsUsed ?? 0,
+    password_hash: input.passwordHash ?? "",
+    password_salt: input.passwordSalt ?? "",
+    oauth_providers: input.oauthProviders ?? {},
+    verified: input.verified ?? false,
+    bio: input.bio ?? "",
+    created_at: input.createdAt ?? null,
+    updated_at: input.updatedAt ?? null,
+  };
+}
+
+async function selectUserRow(query: Record<string, string>): Promise<SupabaseUserRow | null> {
+  const rows = await supabaseFetch<SupabaseUserRow[]>("/rest/v1/users", {
+    query: {
+      select: "*",
+      limit: 1,
+      ...query,
+    },
+  });
+  return rows[0] ?? null;
+}
+
+async function updateUserRow(
+  userId: string,
+  patch: Partial<SupabaseUserRow>,
+): Promise<SupabaseUserRow | null> {
+  const rows = await supabaseFetch<SupabaseUserRow[]>("/rest/v1/users", {
+    method: "PATCH",
+    query: {
+      id: `eq.${userId}`,
+      select: "*",
+    },
+    headers: {
+      Prefer: "return=representation",
+    },
+    body: patch,
+  });
+
+  return rows[0] ?? null;
 }
 
 function base64UrlEncode(value: string): string {
@@ -160,12 +273,22 @@ export function toPublicUser(user: UserRecord): PublicUser {
 }
 
 export async function findUserByEmail(email: string): Promise<UserRecord | null> {
+  if (isSupabaseConfigured()) {
+    const row = await selectUserRow({ email: `eq.${email.toLowerCase().trim()}` });
+    return row ? mapUserRow(row) : null;
+  }
+
   const store = await readStore();
   const normalized = email.toLowerCase().trim();
   return store.users.find((user) => user.email === normalized) ?? null;
 }
 
 export async function findUserById(id: string): Promise<UserRecord | null> {
+  if (isSupabaseConfigured()) {
+    const row = await selectUserRow({ id: `eq.${id}` });
+    return row ? mapUserRow(row) : null;
+  }
+
   const store = await readStore();
   return store.users.find((user) => user.id === id) ?? null;
 }
@@ -174,6 +297,13 @@ export async function findUserByProvider(
   provider: OAuthProvider,
   providerUserId: string,
 ): Promise<UserRecord | null> {
+  if (isSupabaseConfigured()) {
+    const row = await selectUserRow({
+      [`oauth_providers->>${provider}`]: `eq.${providerUserId}`,
+    });
+    return row ? mapUserRow(row) : null;
+  }
+
   const store = await readStore();
   return (
     store.users.find((user) => user.oauthProviders?.[provider] === providerUserId) ?? null
@@ -190,19 +320,12 @@ export async function createUser(input: {
     throw new PasswordValidationError(passwordError);
   }
 
-  const store = await readStore();
   const normalizedEmail = input.email.toLowerCase().trim();
-
-  if (store.users.some((user) => user.email === normalizedEmail)) {
-    throw new Error("EMAIL_EXISTS");
-  }
-
   const salt = crypto.randomBytes(16).toString("hex");
   const now = new Date().toISOString();
-  const user: UserRecord = {
-    id: crypto.randomUUID(),
-    name: input.name.trim(),
+  const userRow = toUserInsertRow({
     email: normalizedEmail,
+    name: input.name.trim(),
     preferredName: "",
     preferredLanguage: "",
     heardFrom: "",
@@ -216,8 +339,38 @@ export async function createUser(input: {
     bio: "",
     createdAt: now,
     updatedAt: now,
-  };
+  });
 
+  if (isSupabaseConfigured()) {
+    try {
+      const rows = await supabaseFetch<SupabaseUserRow[]>("/rest/v1/users", {
+        method: "POST",
+        query: { select: "*" },
+        headers: { Prefer: "return=representation" },
+        body: userRow,
+      });
+      return mapUserRow(rows[0]);
+    } catch (error) {
+      if (
+        error instanceof SupabaseRequestError &&
+        (error.status === 409 ||
+          (typeof error.details === "object" &&
+            error.details !== null &&
+            "code" in error.details &&
+            error.details.code === "23505"))
+      ) {
+        throw new Error("EMAIL_EXISTS");
+      }
+      throw error;
+    }
+  }
+
+  const store = await readStore();
+  if (store.users.some((user) => user.email === normalizedEmail)) {
+    throw new Error("EMAIL_EXISTS");
+  }
+
+  const user = mapUserRow(userRow);
   store.users.push(user);
   await writeStore(store);
   return user;
@@ -234,6 +387,14 @@ export function validatePassword(user: UserRecord, password: string): boolean {
 }
 
 export async function markUserVerified(userId: string): Promise<UserRecord | null> {
+  if (isSupabaseConfigured()) {
+    const updated = await updateUserRow(userId, {
+      verified: true,
+      updated_at: new Date().toISOString(),
+    });
+    return updated ? mapUserRow(updated) : null;
+  }
+
   const store = await readStore();
   const user = store.users.find((entry) => entry.id === userId);
   if (!user) return null;
@@ -248,6 +409,15 @@ export async function updateUserProfile(
   userId: string,
   input: { name?: string; bio?: string },
 ): Promise<UserRecord | null> {
+  if (isSupabaseConfigured()) {
+    const updated = await updateUserRow(userId, {
+      name: typeof input.name === "string" ? input.name.trim() : undefined,
+      bio: typeof input.bio === "string" ? input.bio.trim() : undefined,
+      updated_at: new Date().toISOString(),
+    });
+    return updated ? mapUserRow(updated) : null;
+  }
+
   const store = await readStore();
   const user = store.users.find((entry) => entry.id === userId);
   if (!user) return null;
@@ -269,6 +439,18 @@ export async function completeUserOnboarding(
     learnerType: string;
   },
 ): Promise<UserRecord | null> {
+  if (isSupabaseConfigured()) {
+    const updated = await updateUserRow(userId, {
+      preferred_name: input.preferredName.trim(),
+      preferred_language: input.preferredLanguage.trim(),
+      heard_from: input.heardFrom.trim(),
+      learner_type: input.learnerType.trim(),
+      onboarding_completed: true,
+      updated_at: new Date().toISOString(),
+    });
+    return updated ? mapUserRow(updated) : null;
+  }
+
   const store = await readStore();
   const user = store.users.find((entry) => entry.id === userId);
   if (!user) return null;
@@ -291,6 +473,51 @@ export async function upsertOAuthUser(input: {
   name: string;
   verified: boolean;
 }): Promise<UserRecord> {
+  if (isSupabaseConfigured()) {
+    const normalizedEmail = input.email.toLowerCase().trim();
+    const now = new Date().toISOString();
+
+    const existingByProvider = await findUserByProvider(input.provider, input.providerUserId);
+    const existingByEmail =
+      existingByProvider ?? (await findUserByEmail(normalizedEmail));
+
+    if (!existingByEmail) {
+      const inserted = await supabaseFetch<SupabaseUserRow[]>("/rest/v1/users", {
+        method: "POST",
+        query: { select: "*" },
+        headers: { Prefer: "return=representation" },
+        body: toUserInsertRow({
+          email: normalizedEmail,
+          name: input.name.trim() || "User",
+          oauthProviders: { [input.provider]: input.providerUserId },
+          verified: input.verified,
+          createdAt: now,
+          updatedAt: now,
+        }),
+      });
+      return mapUserRow(inserted[0]);
+    }
+
+    const oauthProviders = {
+      ...(existingByEmail.oauthProviders ?? {}),
+      [input.provider]: input.providerUserId,
+    };
+
+    const updated = await updateUserRow(existingByEmail.id, {
+      email: normalizedEmail,
+      name: input.name.trim() || existingByEmail.name,
+      oauth_providers: oauthProviders,
+      verified: existingByEmail.verified || input.verified,
+      updated_at: now,
+    });
+
+    if (!updated) {
+      throw new Error("OAUTH_UPSERT_FAILED");
+    }
+
+    return mapUserRow(updated);
+  }
+
   const store = await readStore();
   const normalizedEmail = input.email.toLowerCase().trim();
   const now = new Date().toISOString();
@@ -333,6 +560,17 @@ export async function upsertOAuthUser(input: {
 }
 
 export async function assertUserCanUpload(userId: string): Promise<void> {
+  if (isSupabaseConfigured()) {
+    const user = await findUserById(userId);
+    if (!user) return;
+
+    const used = user.uploadsUsed ?? 0;
+    if (used >= FREE_UPLOAD_LIMIT) {
+      throw new UploadLimitError(used, FREE_UPLOAD_LIMIT);
+    }
+    return;
+  }
+
   const store = await readStore();
   const user = store.users.find((entry) => entry.id === userId);
   if (!user) return;
@@ -344,6 +582,18 @@ export async function assertUserCanUpload(userId: string): Promise<void> {
 }
 
 export async function incrementUserUploadUsage(userId: string): Promise<number> {
+  if (isSupabaseConfigured()) {
+    const user = await findUserById(userId);
+    if (!user) return 0;
+
+    const nextUploadsUsed = (user.uploadsUsed ?? 0) + 1;
+    const updated = await updateUserRow(userId, {
+      uploads_used: nextUploadsUsed,
+      updated_at: new Date().toISOString(),
+    });
+    return updated?.uploads_used ?? nextUploadsUsed;
+  }
+
   const store = await readStore();
   const user = store.users.find((entry) => entry.id === userId);
   if (!user) return 0;

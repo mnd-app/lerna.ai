@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import path from "path";
 import { promises as fs } from "fs";
+import { isSupabaseConfigured, supabaseFetch } from "@/lib/supabase-rest";
 
 export type SubjectSourceType = "audio" | "youtube" | "paste_notes" | "document";
 
@@ -35,7 +36,65 @@ type SubjectStore = {
   subjects: SubjectRecord[];
 };
 
+type SupabaseSubjectRow = {
+  id: string;
+  user_id: string | null;
+  topic_name: string;
+  source_type: SubjectSourceType;
+  notes_text: string | null;
+  youtube_url: string | null;
+  file_name: string | null;
+  explanation: string | null;
+  questions: string[] | null;
+  flashcards: Array<{ front: string; back: string }> | null;
+  created_at: string | null;
+};
+
 const SUBJECT_STORE_PATH = path.join(process.cwd(), "data", "subjects.json");
+
+function mapSubjectRow(row: SupabaseSubjectRow): SubjectRecord {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    topicName: row.topic_name,
+    sourceType: row.source_type,
+    notesText: row.notes_text ?? undefined,
+    youtubeUrl: row.youtube_url ?? undefined,
+    fileName: row.file_name ?? undefined,
+    explanation: row.explanation ?? undefined,
+    questions: row.questions ?? undefined,
+    flashcards: row.flashcards ?? undefined,
+    createdAt: row.created_at ?? new Date().toISOString(),
+  };
+}
+
+function toSubjectInsertRow(input: {
+  id?: string;
+  userId: string | null;
+  topicName: string;
+  sourceType: SubjectSourceType;
+  notesText?: string;
+  youtubeUrl?: string;
+  fileName?: string;
+  explanation?: string;
+  questions?: string[];
+  flashcards?: Array<{ front: string; back: string }>;
+  createdAt?: string;
+}): SupabaseSubjectRow {
+  return {
+    id: input.id ?? crypto.randomUUID(),
+    user_id: input.userId,
+    topic_name: input.topicName,
+    source_type: input.sourceType,
+    notes_text: input.notesText ?? null,
+    youtube_url: input.youtubeUrl ?? null,
+    file_name: input.fileName ?? null,
+    explanation: input.explanation ?? null,
+    questions: input.questions ?? null,
+    flashcards: input.flashcards ?? null,
+    created_at: input.createdAt ?? null,
+  };
+}
 
 async function ensureStore(): Promise<void> {
   const dir = path.dirname(SUBJECT_STORE_PATH);
@@ -71,9 +130,7 @@ export async function createSubject(input: {
   questions?: string[];
   flashcards?: Array<{ front: string; back: string }>;
 }): Promise<SubjectRecord> {
-  const store = await readStore();
-  const subject: SubjectRecord = {
-    id: crypto.randomUUID(),
+  const subject = toSubjectInsertRow({
     userId: input.userId,
     topicName:
       input.topicName?.trim() ||
@@ -86,11 +143,23 @@ export async function createSubject(input: {
     questions: input.questions,
     flashcards: input.flashcards,
     createdAt: new Date().toISOString(),
-  };
+  });
 
-  store.subjects.unshift(subject);
+  if (isSupabaseConfigured()) {
+    const rows = await supabaseFetch<SupabaseSubjectRow[]>("/rest/v1/subjects", {
+      method: "POST",
+      query: { select: "*" },
+      headers: { Prefer: "return=representation" },
+      body: subject,
+    });
+    return mapSubjectRow(rows[0]);
+  }
+
+  const store = await readStore();
+  const localSubject = mapSubjectRow(subject);
+  store.subjects.unshift(localSubject);
   await writeStore(store);
-  return subject;
+  return localSubject;
 }
 
 export async function renameSubject(input: {
@@ -98,9 +167,29 @@ export async function renameSubject(input: {
   userId: string | null;
   topicName: string;
 }): Promise<SubjectRecord | null> {
-  const store = await readStore();
   const normalized = input.topicName.trim();
   if (!normalized) return null;
+
+  if (isSupabaseConfigured()) {
+    const filters: Record<string, string> = {
+      id: `eq.${input.id}`,
+      select: "*",
+    };
+    filters.user_id = input.userId ? `eq.${input.userId}` : "is.null";
+
+    const rows = await supabaseFetch<SupabaseSubjectRow[]>("/rest/v1/subjects", {
+      method: "PATCH",
+      query: filters,
+      headers: { Prefer: "return=representation" },
+      body: {
+        topic_name: normalized,
+      },
+    });
+
+    return rows[0] ? mapSubjectRow(rows[0]) : null;
+  }
+
+  const store = await readStore();
 
   const subject = store.subjects.find((item) => item.id === input.id);
   if (!subject) return null;
@@ -117,6 +206,21 @@ export async function deleteSubject(input: {
   id: string;
   userId: string | null;
 }): Promise<boolean> {
+  if (isSupabaseConfigured()) {
+    const filters: Record<string, string> = {
+      id: `eq.${input.id}`,
+      select: "id",
+    };
+    filters.user_id = input.userId ? `eq.${input.userId}` : "is.null";
+
+    const rows = await supabaseFetch<Array<{ id: string }>>("/rest/v1/subjects", {
+      method: "DELETE",
+      query: filters,
+      headers: { Prefer: "return=representation" },
+    });
+    return rows.length > 0;
+  }
+
   const store = await readStore();
   const index = store.subjects.findIndex((item) => item.id === input.id);
   if (index < 0) return false;
@@ -131,12 +235,36 @@ export async function deleteSubject(input: {
 }
 
 export async function listSubjects(userId: string | null): Promise<SubjectRecord[]> {
+  if (isSupabaseConfigured()) {
+    const filters: Record<string, string | number> = {
+      select: "*",
+      order: "created_at.desc",
+      limit: userId ? 50 : 20,
+    };
+    filters.user_id = userId ? `eq.${userId}` : "is.null";
+    const rows = await supabaseFetch<SupabaseSubjectRow[]>("/rest/v1/subjects", {
+      query: filters,
+    });
+    return rows.map(mapSubjectRow);
+  }
+
   const store = await readStore();
   if (!userId) return store.subjects.slice(0, 20);
   return store.subjects.filter((item) => item.userId === userId).slice(0, 50);
 }
 
 export async function findSubjectById(id: string): Promise<SubjectRecord | null> {
+  if (isSupabaseConfigured()) {
+    const rows = await supabaseFetch<SupabaseSubjectRow[]>("/rest/v1/subjects", {
+      query: {
+        select: "*",
+        id: `eq.${id}`,
+        limit: 1,
+      },
+    });
+    return rows[0] ? mapSubjectRow(rows[0]) : null;
+  }
+
   const store = await readStore();
   return store.subjects.find((item) => item.id === id) ?? null;
 }
@@ -147,6 +275,23 @@ export async function updateSubjectGeneratedContent(input: {
   questions?: string[];
   flashcards?: Array<{ front: string; back: string }>;
 }): Promise<SubjectRecord | null> {
+  if (isSupabaseConfigured()) {
+    const rows = await supabaseFetch<SupabaseSubjectRow[]>("/rest/v1/subjects", {
+      method: "PATCH",
+      query: {
+        id: `eq.${input.id}`,
+        select: "*",
+      },
+      headers: { Prefer: "return=representation" },
+      body: {
+        explanation: input.explanation,
+        questions: input.questions,
+        flashcards: input.flashcards,
+      },
+    });
+    return rows[0] ? mapSubjectRow(rows[0]) : null;
+  }
+
   const store = await readStore();
   const subject = store.subjects.find((item) => item.id === input.id);
   if (!subject) return null;

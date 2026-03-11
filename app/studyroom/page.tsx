@@ -1116,29 +1116,32 @@ export default function StudyBoardHomePage() {
                 </button>
               </div>
 
-                <button
-                  type="button"
-                  onClick={onCreateFolder}
-                  className="mt-6 w-full cursor-pointer rounded-2xl px-5 py-4 text-left text-xl font-semibold text-white shadow-[0_4px_0_0_rgba(0,0,0,0.75)] transition hover:-translate-y-px hover:shadow-[0_6px_0_0_rgba(0,0,0,0.75)]"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, color-mix(in srgb, var(--app-accent-strong) 85%, white 15%), var(--app-accent))",
+              <button
+                type="button"
+                onClick={onCreateFolder}
+                className="mt-6 w-full cursor-pointer rounded-2xl px-5 py-4 text-left text-xl font-semibold text-white shadow-[0_4px_0_0_rgba(0,0,0,0.75)] transition hover:-translate-y-px hover:shadow-[0_6px_0_0_rgba(0,0,0,0.75)]"
+                style={{
+                  background:
+                    "linear-gradient(135deg, color-mix(in srgb, var(--app-accent-strong) 85%, white 15%), var(--app-accent))",
                 }}
               >
                 + Create New Folder
               </button>
 
-                <button
-                  type="button"
-                  onClick={openStudySetsView}
-                  className="mt-6 flex w-full cursor-pointer items-center gap-4 rounded-2xl border px-5 py-4 text-left transition hover:-translate-y-px"
-                  style={{
-                    borderColor: "var(--app-border)",
-                    backgroundColor: "color-mix(in srgb, var(--app-card) 94%, transparent)",
-                  boxShadow: "inset 6px 0 0 color-mix(in srgb, var(--app-fg) 75%, transparent)",
+              <button
+                type="button"
+                onClick={openStudySetsView}
+                className="mt-6 flex w-full cursor-pointer items-center gap-4 rounded-2xl border px-5 py-4 text-left transition hover:-translate-y-px"
+                style={{
+                  borderColor: "var(--app-border)",
+                  backgroundColor: "color-mix(in srgb, var(--app-card) 94%, transparent)",
+                  boxShadow:
+                    "inset 6px 0 0 color-mix(in srgb, var(--app-fg) 75%, transparent)",
                 }}
               >
-                <span className="text-3xl" style={{ color: "var(--app-muted)" }}>[]</span>
+                <span className="text-3xl" style={{ color: "var(--app-muted)" }}>
+                  []
+                </span>
                 <span className="min-w-0">
                   <span className="block text-xl font-semibold">All Study Sets</span>
                   <span className="block text-sm" style={{ color: "var(--app-muted)" }}>
@@ -1149,7 +1152,13 @@ export default function StudyBoardHomePage() {
 
               {folders.length === 0 ? (
                 <div className="px-4 pt-20 text-center">
-                  <div className="mx-auto inline-flex h-24 w-24 items-center justify-center rounded-full border text-5xl" style={{ borderColor: "var(--app-border)", color: "var(--app-muted)" }}>
+                  <div
+                    className="mx-auto inline-flex h-24 w-24 items-center justify-center rounded-full border text-5xl"
+                    style={{
+                      borderColor: "var(--app-border)",
+                      color: "var(--app-muted)",
+                    }}
+                  >
                     []
                   </div>
                   <p className="mt-6 text-3xl font-medium" style={{ color: "var(--app-muted)" }}>
