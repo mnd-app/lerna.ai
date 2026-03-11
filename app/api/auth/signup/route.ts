@@ -2,10 +2,12 @@ import { NextResponse } from "next/server";
 import {
   createSessionToken,
   createUser,
+  PasswordValidationError,
   createVerificationToken,
   setSessionCookie,
   toPublicUser,
 } from "@/lib/auth";
+import { getPasswordValidationError } from "@/lib/password-rules";
 
 export async function POST(request: Request) {
   try {
@@ -26,9 +28,10 @@ export async function POST(request: Request) {
       );
     }
 
-    if (password.length < 8) {
+    const passwordError = getPasswordValidationError(password);
+    if (passwordError) {
       return NextResponse.json(
-        { error: "Password must be at least 8 characters." },
+        { error: passwordError },
         { status: 400 },
       );
     }
@@ -49,6 +52,10 @@ export async function POST(request: Request) {
   } catch (error) {
     if (error instanceof Error && error.message === "EMAIL_EXISTS") {
       return NextResponse.json({ error: "Email is already in use." }, { status: 409 });
+    }
+
+    if (error instanceof PasswordValidationError) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
     return NextResponse.json({ error: "Failed to create account." }, { status: 500 });

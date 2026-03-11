@@ -2,6 +2,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import crypto from "crypto";
 import { NextResponse } from "next/server";
+import { getPasswordValidationError } from "@/lib/password-rules";
 
 export type OAuthProvider = "google" | "discord" | "apple" | "facebook" | "phone";
 
@@ -49,6 +50,13 @@ const SESSION_COOKIE_NAME = "lerna_session";
 const DEFAULT_SECRET = "dev-only-secret-change-me";
 const TOKEN_SECRET = process.env.AUTH_SECRET ?? DEFAULT_SECRET;
 export const FREE_UPLOAD_LIMIT = 3;
+
+export class PasswordValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "PasswordValidationError";
+  }
+}
 
 export class UploadLimitError extends Error {
   limit: number;
@@ -177,6 +185,11 @@ export async function createUser(input: {
   email: string;
   password: string;
 }): Promise<UserRecord> {
+  const passwordError = getPasswordValidationError(input.password);
+  if (passwordError) {
+    throw new PasswordValidationError(passwordError);
+  }
+
   const store = await readStore();
   const normalizedEmail = input.email.toLowerCase().trim();
 

@@ -3,6 +3,10 @@
 import Link from "next/link";
 import { FormEvent, Suspense, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import {
+  getPasswordValidationError,
+  PASSWORD_REQUIREMENTS,
+} from "@/lib/password-rules";
 
 type AuthMode = "login" | "signup";
 
@@ -40,6 +44,14 @@ function AuthPageContent() {
     setVerificationUrl("");
 
     try {
+      if (mode === "signup") {
+        const passwordError = getPasswordValidationError(password);
+        if (passwordError) {
+          setError(passwordError);
+          return;
+        }
+      }
+
       const endpoint = mode === "login" ? "/api/auth/login" : "/api/auth/signup";
       const payload = mode === "login" ? { email, password } : { name, email, password };
 
@@ -59,12 +71,7 @@ function AuthPageContent() {
       if (data.verificationUrl) setVerificationUrl(data.verificationUrl);
       window.dispatchEvent(new Event("auth-changed"));
       router.refresh();
-
-      if (mode === "login") {
-        router.push(nextPath);
-      } else {
-        setMode("login");
-      }
+      router.push(nextPath);
     } catch {
       setError("Unexpected authentication error.");
     } finally {
@@ -136,6 +143,11 @@ function AuthPageContent() {
                 onChange={(event) => setPassword(event.target.value)}
                 className="ui-input mt-1"
               />
+              {mode === "signup" ? (
+                <span className="mt-2 block text-xs font-normal" style={{ color: "var(--app-muted)" }}>
+                  {PASSWORD_REQUIREMENTS}
+                </span>
+              ) : null}
             </label>
 
             <button type="submit" disabled={isLoading} className="ui-btn-primary w-full py-2.5 disabled:opacity-70">
