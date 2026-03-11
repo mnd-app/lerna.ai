@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { serializeStudyUploadFiles } from "@/lib/client-study-upload";
 
 type SubjectListItem = {
   id: string;
@@ -622,11 +623,23 @@ export default function StudyBoardHomePage() {
     }, 260);
 
     try {
+      const serializedFiles =
+        uploadFlowType === "paste_notes" ? [] : await serializeStudyUploadFiles(uploadFiles);
+      const extractedTextNotes = serializedFiles
+        .map((file) =>
+          file.extractedText ? `Extracted text from ${file.name}:\n${file.extractedText}` : "",
+        )
+        .filter(Boolean)
+        .join("\n\n");
+
       const generationNotes =
         uploadFlowType === "paste_notes"
           ? pasteNotes.trim()
-          : [
-              `Infer a likely topic and generate full study output from these uploaded ${uploadFlowType === "audio" ? "audio" : "document"} file names:`,
+          : extractedTextNotes ||
+            [
+              `Infer a likely topic and generate full study output from these uploaded ${
+                uploadFlowType === "audio" ? "audio" : "document"
+              } file names:`,
               ...uploadFiles.map((file, idx) => `${idx + 1}. ${file.name}`),
             ].join("\n");
 
@@ -636,6 +649,7 @@ export default function StudyBoardHomePage() {
         body: JSON.stringify({
           notes: generationNotes,
           sourceType: uploadFlowType,
+          files: serializedFiles,
           topicHint:
             uploadFlowType === "paste_notes"
               ? inferTopicFromNotes(pasteNotes)

@@ -18,6 +18,125 @@ type StudyOutput = {
   flashcards: Array<{ front: string; back: string }>;
 };
 
+type StudyInputFile = {
+  name: string;
+  mimeType: string;
+  data?: string;
+  extractedText?: string;
+};
+
+function supportsGeminiInlineMime(mimeType: string): boolean {
+  return (
+    mimeType === "application/pdf" ||
+    mimeType.startsWith("image/") ||
+    mimeType.startsWith("audio/") ||
+    mimeType.startsWith("video/")
+  );
+}
+
+function normalizeInputFiles(value: unknown): StudyInputFile[] {
+  if (!Array.isArray(value)) return [];
+
+  const normalized: StudyInputFile[] = [];
+
+  for (const item of value) {
+    if (!item || typeof item !== "object") continue;
+    const record = item as Partial<StudyInputFile>;
+    const name = String(record.name ?? "").trim();
+    const mimeType = String(record.mimeType ?? "").trim();
+    const data = typeof record.data === "string" ? record.data.trim() : undefined;
+    const extractedText =
+      typeof record.extractedText === "string" ? record.extractedText.trim() : undefined;
+
+    if (!name || !mimeType) continue;
+
+    normalized.push({
+      name,
+      mimeType,
+      data,
+      extractedText,
+    });
+  }
+
+  return normalized.slice(0, 3);
+}
+
+function extractSegmentTitlesFromNotes(notes: string, topicTitle: string): string[] {
+  const cleanedLines = notes
+    .split("\n")
+    .map((line) =>
+      line
+        .replace(/^#+\s*/, "")
+        .replace(/\s+/g, " ")
+        .trim(),
+    )
+    .filter(Boolean)
+    .filter((line) => !/^infer a likely topic/i.test(line));
+
+  const headingCandidates = cleanedLines.filter((line) => {
+    if (/^[-*]\s*/.test(line) || /^\d+\.\s*/.test(line)) return false;
+    if (line.length < 4 || line.length > 72) return false;
+    if (/[.!?]$/.test(line)) return false;
+    const wordCount = line.split(/\s+/).length;
+    return wordCount >= 1 && wordCount <= 8;
+  });
+
+  const unique = Array.from(
+    new Set(
+      headingCandidates.map((line) => line.replace(/:$/, "").trim()).filter(Boolean),
+    ),
+  ).filter((line) => line.toLowerCase() !== topicTitle.toLowerCase());
+
+  if (unique.length >= 3) return unique.slice(0, 5);
+
+  return ["Core Ideas", "Key Details", "Important Examples", "Review Priorities"];
+}
+
+function buildStructuredExplanation(topicTitle: string, notes: string): string {
+  const segmentTitles = extractSegmentTitlesFromNotes(notes, topicTitle);
+  const notePreview = notes
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .slice(0, 2)
+    .join(" ")
+    .slice(0, 320);
+
+  return [
+    `# ${topicTitle}`,
+    "",
+    "## What This Material Covers",
+    notePreview
+      ? `${topicTitle} is organized below into the major parts that appear in the uploaded material. Start with the core ideas first, then move into the details, examples, and anything your class is likely to test. ${notePreview}`
+      : `${topicTitle} is organized below into the major parts that should guide your review of the uploaded material.`,
+    "",
+    "## Major Segments",
+    ...segmentTitles.flatMap((segment, index) => [
+      `### ${index + 1}. ${segment}`,
+      `- Focus on what this section says about **${segment}** and how it connects to the rest of the material.`,
+      "- Pull out the definitions, claims, processes, formulas, or supporting facts that are repeated in your notes.",
+      "- Add one concrete example, class case, or diagram cue from the upload when you review this section.",
+      "",
+    ]),
+    "## Roadmap To Study",
+    `1. Start with **${segmentTitles[0]}** so you understand the foundation of ${topicTitle}.`,
+    `2. Move to **${segmentTitles[1] ?? "Key Details"}** and turn the main ideas into short summary notes.`,
+    `3. Review **${segmentTitles[2] ?? "Important Examples"}** and connect them to definitions, formulas, or arguments from the upload.`,
+    `4. Finish with **${segmentTitles[3] ?? "Review Priorities"}** and test yourself without looking back at the material.`,
+    "5. Revisit weak areas and convert them into flashcards or self-quiz prompts.",
+    "",
+    "## What To Memorize",
+    "- Key terms, definitions, formulas, dates, or steps that are repeated in the material.",
+    "- Any vocabulary or short-answer facts your instructor would expect you to recall quickly.",
+    "- One example or application for each major segment.",
+    "",
+    "## Likely Review Questions",
+    `- What are the major segments inside ${topicTitle}?`,
+    `- How would you explain ${topicTitle} section by section in your own words?`,
+    "- Which parts are definitions or must-memorize facts, and which parts are examples or applications?",
+  ].join("\n");
+}
+
 function inferTopicTitle(input: {
   notes: string;
   topicHint?: string;
@@ -51,43 +170,25 @@ function buildFallbackStudyOutput(input: {
   fileNames?: string[];
 }): StudyOutput {
   const topicTitle = inferTopicTitle(input);
+  const segmentTitles = extractSegmentTitlesFromNotes(input.notes, topicTitle);
   return {
     topicTitle,
-    explanation: [
-      `# ${topicTitle}`,
-      "",
-      "## Overview",
-      `${topicTitle} has been saved and organized into a starter study set. Lerna could not fully expand the material from the upload itself, so this version gives you a clean structure to begin reviewing right away.`,
-      "",
-      "## What To Review First",
-      "- Read through the original upload and identify the main concept, definition, or argument.",
-      "- Highlight any formulas, key terms, dates, or class-specific examples tied to this topic.",
-      "- Turn unclear sections into follow-up questions for StudyBoard review.",
-      "",
-      "## How To Study This Topic",
-      "1. Start with the core idea and explain it in your own words.",
-      "2. Write down the three most important supporting points from your material.",
-      "3. Use flashcards for definitions, processes, or vocabulary that must be memorized.",
-      "4. Practice answering questions without looking back at the notes.",
-      "",
-      "## Exam Focus",
-      "- Know the main definition or purpose of the topic.",
-      "- Be able to describe how it works or why it matters.",
-      "- Review one example, application, or class case connected to it.",
-    ].join("\n"),
+    explanation: buildStructuredExplanation(topicTitle, input.notes),
     questions: [
       `What is the main idea behind ${topicTitle}?`,
-      `Why is ${topicTitle} important in this course?`,
+      `What are the major segments inside ${topicTitle}?`,
+      `Which section should you study first, and why?`,
       `What are the most important terms connected to ${topicTitle}?`,
-      `How would you explain ${topicTitle} in simple language?`,
-      `What example or case best illustrates ${topicTitle}?`,
+      `How would you explain ${segmentTitles[0]} in simple language?`,
+      `What example or case best illustrates ${segmentTitles[1] ?? topicTitle}?`,
+      `Which facts or processes from ${topicTitle} need to be memorized?`,
       `What mistake do students often make when studying ${topicTitle}?`,
     ],
     flashcards: [
       { front: "Main idea", back: `${topicTitle} core concept` },
-      { front: "Why it matters", back: "Important for class understanding" },
-      { front: "Key term", back: "Review vocabulary from notes" },
-      { front: "Exam focus", back: "Know definition and example" },
+      { front: "Segment 1", back: segmentTitles[0] ?? "Core ideas" },
+      { front: "Segment 2", back: segmentTitles[1] ?? "Key details" },
+      { front: "Exam focus", back: "Know sections and examples" },
     ],
   };
 }
@@ -166,12 +267,14 @@ export async function POST(request: Request) {
       sourceType?: "audio" | "youtube" | "paste_notes" | "document";
       topicHint?: string;
       fileNames?: string[];
+      files?: StudyInputFile[];
     };
     const notes = body.notes?.trim() ?? "";
     if (!notes) {
       return NextResponse.json({ error: "Notes are required." }, { status: 400 });
     }
     const sourceType = body.sourceType ?? "paste_notes";
+    const uploadedFiles = normalizeInputFiles(body.files);
     const fallbackOutput = buildFallbackStudyOutput({
       notes,
       topicHint: body.topicHint,
@@ -180,6 +283,8 @@ export async function POST(request: Request) {
 
     const prompt = [
       "You are lerna.ai, a high-quality study tutor.",
+      "Use the actual uploaded material and source text as your primary evidence.",
+      "Do not write a generic overview. Build the study guide from what is actually in the upload.",
       "Return ONLY valid JSON with this exact shape:",
       "{",
       '  "topicTitle": "string",',
@@ -189,7 +294,21 @@ export async function POST(request: Request) {
       "}",
       "Rules:",
       "- topicTitle must be concise and accurate.",
-      "- explanation must be in-depth and clear for students.",
+      "- explanation must be in-depth, specific, and clear for students.",
+      "- explanation must follow this exact structure:",
+      "  # Topic title",
+      "  ## What This Material Covers",
+      "  ## Major Segments",
+      "  ### 1. Segment Name",
+      "  - bullet points tied to that segment",
+      "  ## Roadmap To Study",
+      "  1. numbered steps in the order the student should study",
+      "  ## What To Memorize",
+      "  ## Likely Review Questions",
+      "- identify the major segments or sections from the uploaded material itself.",
+      "- for each major segment, explain the actual ideas, details, formulas, processes, or examples found in the material.",
+      "- roadmap to study must tell the student the order to review the segments and how to approach them.",
+      "- do not fill the explanation with generic study advice unless it is tied to a segment from the material.",
       "- include 8-10 questions.",
       "- include flashcards for all medium-to-high importance concepts in the notes.",
       "- flashcards must be concise and easy to memorize.",
@@ -215,7 +334,36 @@ export async function POST(request: Request) {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              contents: [{ parts: [{ text: prompt }] }],
+              contents: [
+                {
+                  parts: [
+                    { text: prompt },
+                    ...uploadedFiles.flatMap((file) => {
+                      const parts: Array<
+                        | { text: string }
+                        | { inlineData: { mimeType: string; data: string } }
+                      > = [{ text: `Uploaded file: ${file.name}` }];
+
+                      if (file.extractedText) {
+                        parts.push({
+                          text: `Extracted text from ${file.name}:\n${file.extractedText.slice(0, 20_000)}`,
+                        });
+                      }
+
+                      if (file.data && supportsGeminiInlineMime(file.mimeType)) {
+                        parts.push({
+                          inlineData: {
+                            mimeType: file.mimeType,
+                            data: file.data,
+                          },
+                        });
+                      }
+
+                      return parts;
+                    }),
+                  ],
+                },
+              ],
               generationConfig: {
                 temperature: 0.4,
                 maxOutputTokens: 3200,

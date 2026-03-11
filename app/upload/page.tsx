@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { serializeStudyUploadFiles } from "@/lib/client-study-upload";
 
 type SubjectSourceType = "audio" | "youtube" | "paste_notes" | "document";
 
@@ -32,6 +33,8 @@ export default function UploadPage() {
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [documentFileName, setDocumentFileName] = useState("");
   const [audioFileName, setAudioFileName] = useState("");
+  const [documentFile, setDocumentFile] = useState<File | null>(null);
+  const [audioFile, setAudioFile] = useState<File | null>(null);
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -72,6 +75,7 @@ export default function UploadPage() {
     if (!file) return;
 
     setDocumentFileName(file.name);
+    setDocumentFile(file);
     setError(null);
 
     if (file.name.toLowerCase().endsWith(".txt")) {
@@ -83,6 +87,7 @@ export default function UploadPage() {
   function onAudioFileChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
+    setAudioFile(file);
     setAudioFileName(file.name);
     setError(null);
   }
@@ -114,12 +119,34 @@ export default function UploadPage() {
     setIsProcessing(true);
 
     try {
+      const selectedFiles =
+        sourceType === "audio"
+          ? audioFile
+            ? [audioFile]
+            : []
+          : sourceType === "document"
+            ? documentFile
+              ? [documentFile]
+              : []
+            : [];
+      const serializedFiles =
+        sourceType === "paste_notes" || sourceType === "youtube"
+          ? []
+          : await serializeStudyUploadFiles(selectedFiles);
+      const extractedTextNotes = serializedFiles
+        .map((file) =>
+          file.extractedText ? `Extracted text from ${file.name}:\n${file.extractedText}` : "",
+        )
+        .filter(Boolean)
+        .join("\n\n");
+
       const generationNotes =
         sourceType === "paste_notes"
           ? notes.trim()
           : sourceType === "youtube"
             ? `Infer a likely topic and generate full study output from this YouTube source:\n${youtubeUrl.trim()}`
-            : [
+            : extractedTextNotes ||
+              [
                 `Infer a likely topic and generate full study output from this uploaded ${
                   sourceType === "audio" ? "audio" : "document"
                 } file name:`,
@@ -132,6 +159,7 @@ export default function UploadPage() {
         body: JSON.stringify({
           sourceType,
           notes: generationNotes,
+          files: serializedFiles,
           topicHint:
             sourceType === "paste_notes"
               ? notes
