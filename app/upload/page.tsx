@@ -14,6 +14,16 @@ type SubjectRecord = {
 
 const MAX_CHARS = 12000;
 
+function inferTopicFromFileName(value: string): string {
+  const cleaned = value
+    .replace(/\.[a-z0-9]+$/i, "")
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return cleaned || "New Study Set";
+}
+
 export default function UploadPage() {
   const router = useRouter();
 
@@ -104,34 +114,39 @@ export default function UploadPage() {
     setIsProcessing(true);
 
     try {
-      if (sourceType === "paste_notes") {
-        const response = await fetch("/api/study/generate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ notes }),
-        });
+      const generationNotes =
+        sourceType === "paste_notes"
+          ? notes.trim()
+          : sourceType === "youtube"
+            ? `Infer a likely topic and generate full study output from this YouTube source:\n${youtubeUrl.trim()}`
+            : [
+                `Infer a likely topic and generate full study output from this uploaded ${
+                  sourceType === "audio" ? "audio" : "document"
+                } file name:`,
+                `1. ${sourceType === "audio" ? audioFileName : documentFileName}`,
+              ].join("\n");
 
-        const payload = (await response.json()) as { error?: string; subject?: SubjectRecord };
-        if (!response.ok || !payload.subject) {
-          if (response.status === 402) {
-            router.push("/pricing");
-            return;
-          }
-          setError(payload.error ?? "Failed to generate study content.");
-          return;
-        }
-
-        router.push(`/studyroom/${payload.subject.id}`);
-        return;
-      }
-
-      const response = await fetch("/api/subjects", {
+      const response = await fetch("/api/study/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           sourceType,
-          youtubeUrl: sourceType === "youtube" ? youtubeUrl : undefined,
-          fileName: sourceType === "audio" ? audioFileName : sourceType === "document" ? documentFileName : undefined,
+          notes: generationNotes,
+          topicHint:
+            sourceType === "paste_notes"
+              ? notes
+                  .split("\n")
+                  .map((line) => line.trim())
+                  .find(Boolean)
+              : sourceType === "youtube"
+                ? ""
+                : inferTopicFromFileName(sourceType === "audio" ? audioFileName : documentFileName),
+          fileNames:
+            sourceType === "audio"
+              ? [audioFileName]
+              : sourceType === "document"
+                ? [documentFileName]
+                : undefined,
         }),
       });
 
@@ -141,11 +156,11 @@ export default function UploadPage() {
           router.push("/pricing");
           return;
         }
-        setError(payload.error ?? "Failed to save source.");
+        setError(payload.error ?? "Failed to generate study content.");
         return;
       }
 
-      router.push(`/studyroom/${payload.subject.id}`);
+      router.push(`/studyroom/${payload.subject.id}?tab=study-guide`);
     } catch {
       setError("Unable to process the source right now.");
     } finally {

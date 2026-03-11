@@ -25,7 +25,7 @@ type User = {
 
 type ThemePreference = "system" | "light" | "dark";
 type UploadFlowType = "document" | "paste_notes" | "audio";
-type StudyroomView = "study-sets" | "folders";
+type StudyBoardView = "study-sets" | "folders";
 type WorkspaceSection = "study-sets" | "scan-notes" | "paper-grader";
 type FolderRecord = {
   id: string;
@@ -164,7 +164,7 @@ const WELCOME_SLIDES = [
   },
 ] as const;
 
-export default function StudyroomHomePage() {
+export default function StudyBoardHomePage() {
   const FREE_LIMIT = 3;
   const router = useRouter();
   const [subjects, setSubjects] = useState<SubjectListItem[]>([]);
@@ -192,7 +192,7 @@ export default function StudyroomHomePage() {
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const [studySetSearchQuery, setStudySetSearchQuery] = useState("");
-  const [activeView, setActiveView] = useState<StudyroomView>("study-sets");
+  const [activeView, setActiveView] = useState<StudyBoardView>("study-sets");
   const [activeSection, setActiveSection] = useState<WorkspaceSection>("study-sets");
   const [folders, setFolders] = useState<FolderRecord[]>([]);
   const [scanNotePrompt, setScanNotePrompt] = useState("");
@@ -261,7 +261,7 @@ export default function StudyroomHomePage() {
           await loadSubjects();
         }
       } catch {
-        if (mounted) setError("Failed to load studyroom.");
+        if (mounted) setError("Failed to load StudyBoard.");
       } finally {
         if (mounted) setIsCheckingAuth(false);
       }
@@ -299,15 +299,15 @@ export default function StudyroomHomePage() {
   }, []);
 
   useEffect(() => {
-    function handleStudyroomSearchChange(event: Event) {
+    function handleStudyBoardSearchChange(event: Event) {
       const customEvent = event as CustomEvent<{ query?: string }>;
       setStudySetSearchQuery(customEvent.detail?.query ?? "");
     }
 
-    window.addEventListener("studyroom-search-change", handleStudyroomSearchChange);
+    window.addEventListener("studyboard-search-change", handleStudyBoardSearchChange);
 
     return () => {
-      window.removeEventListener("studyroom-search-change", handleStudyroomSearchChange);
+      window.removeEventListener("studyboard-search-change", handleStudyBoardSearchChange);
     };
   }, []);
 
@@ -327,22 +327,22 @@ export default function StudyroomHomePage() {
   }, [folders]);
 
   useEffect(() => {
-    function handleStudyroomViewChange(event: Event) {
-      const customEvent = event as CustomEvent<{ view?: StudyroomView }>;
+    function handleStudyBoardViewChange(event: Event) {
+      const customEvent = event as CustomEvent<{ view?: StudyBoardView }>;
       const nextView = customEvent.detail?.view === "folders" ? "folders" : "study-sets";
       setActiveSection("study-sets");
       setActiveView(nextView);
       window.dispatchEvent(
-        new CustomEvent("studyroom-view-sync", {
+        new CustomEvent("studyboard-view-sync", {
           detail: { view: nextView },
         }),
       );
     }
 
-    window.addEventListener("studyroom-view-change", handleStudyroomViewChange);
+    window.addEventListener("studyboard-view-change", handleStudyBoardViewChange);
 
     return () => {
-      window.removeEventListener("studyroom-view-change", handleStudyroomViewChange);
+      window.removeEventListener("studyboard-view-change", handleStudyBoardViewChange);
     };
   }, []);
 
@@ -388,8 +388,8 @@ export default function StudyroomHomePage() {
     setActiveSection("study-sets");
     setActiveView("study-sets");
     window.dispatchEvent(
-      new CustomEvent("studyroom-view-sync", {
-        detail: { view: "study-sets" as StudyroomView },
+      new CustomEvent("studyboard-view-sync", {
+        detail: { view: "study-sets" as StudyBoardView },
       }),
     );
   }
@@ -412,7 +412,7 @@ export default function StudyroomHomePage() {
     setActiveSection(section);
     if (section === "study-sets") {
       window.dispatchEvent(
-        new CustomEvent("studyroom-view-sync", {
+        new CustomEvent("studyboard-view-sync", {
           detail: { view: activeView },
         }),
       );
@@ -421,8 +421,8 @@ export default function StudyroomHomePage() {
 
     setActiveView("study-sets");
     window.dispatchEvent(
-      new CustomEvent("studyroom-view-sync", {
-        detail: { view: "study-sets" as StudyroomView },
+      new CustomEvent("studyboard-view-sync", {
+        detail: { view: "study-sets" as StudyBoardView },
       }),
     );
   }
@@ -633,7 +633,15 @@ export default function StudyroomHomePage() {
       const generateResponse = await fetch("/api/study/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ notes: generationNotes }),
+        body: JSON.stringify({
+          notes: generationNotes,
+          sourceType: uploadFlowType,
+          topicHint:
+            uploadFlowType === "paste_notes"
+              ? inferTopicFromNotes(pasteNotes)
+              : inferTopicFromFileName(uploadFiles[0]?.name ?? ""),
+          fileNames: uploadFiles.map((file) => file.name),
+        }),
       });
       const generatePayload = (await generateResponse.json()) as {
         subject?: { id?: string };
@@ -662,7 +670,7 @@ export default function StudyroomHomePage() {
           setUploadFiles([]);
           setPasteNotes("");
           setUploadsUsed((prev) => prev + 1);
-          router.push(`/studyroom/${generatePayload.subject.id}`);
+          router.push(`/studyroom/${generatePayload.subject.id}?tab=study-guide`);
           return;
         }
       }
@@ -705,7 +713,7 @@ export default function StudyroomHomePage() {
       setUploadFiles([]);
       setPasteNotes("");
       setUploadsUsed((prev) => prev + 1);
-      router.push(`/studyroom/${fallbackPayload.subject.id}`);
+      router.push(`/studyroom/${fallbackPayload.subject.id}?tab=study-guide`);
     } catch {
       setUploadModalError("Unable to process files right now.");
     } finally {
@@ -742,14 +750,14 @@ export default function StudyroomHomePage() {
             className="rounded-lg px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.14em]"
             style={{ color: "var(--app-muted)" }}
           >
-            StudyRoom
+            StudyBoard
           </p>
 
           <nav className="mt-6 space-y-2">
             {[
-              { id: "study-sets" as const, label: "Study Sets", icon: "▦" },
-              { id: "scan-notes" as const, label: "Scan Notes", icon: "◎" },
-              { id: "paper-grader" as const, label: "Paper Grader", icon: "☑" },
+              { id: "study-sets" as const, label: "Study Sets", icon: "SS" },
+              { id: "scan-notes" as const, label: "Scan Notes", icon: "SN" },
+              { id: "paper-grader" as const, label: "Paper Grader", icon: "PG" },
             ].map((item) => (
               <button
                 key={item.id}
@@ -790,9 +798,9 @@ export default function StudyroomHomePage() {
               >
                 <div className="mb-2 grid grid-cols-3 gap-1 rounded-xl border p-1" style={{ borderColor: "var(--app-border)" }}>
                   {[
-                    { id: "system" as const, icon: "🖥", label: "System" },
-                    { id: "light" as const, icon: "☀", label: "Light" },
-                    { id: "dark" as const, icon: "🌙", label: "Dark" },
+                    { id: "system" as const, icon: "Sys", label: "System" },
+                    { id: "light" as const, icon: "Sun", label: "Light" },
+                    { id: "dark" as const, icon: "Moon", label: "Dark" },
                   ].map((option) => {
                     const active = themePreference === option.id;
                     return (
@@ -867,12 +875,106 @@ export default function StudyroomHomePage() {
               }}
             >
               <p className="text-sm font-semibold">{userName}</p>
-              <span style={{ color: "var(--app-muted)" }}>{accountMenuOpen ? "⌃" : "⌄"}</span>
+              <span style={{ color: "var(--app-muted)" }}>{accountMenuOpen ? "Close" : "Menu"}</span>
             </button>
           </div>
         </aside>
 
         <section className="min-w-0 flex-1 px-4 py-5 sm:px-5 md:px-8">
+          <div className="mb-4 lg:hidden">
+            <div className="relative">
+              {accountMenuOpen ? (
+                <div
+                  className="mb-3 rounded-2xl border p-2 shadow-xl"
+                  style={{
+                    borderColor: "var(--app-border)",
+                    backgroundColor: "color-mix(in srgb, var(--app-card) 92%, var(--app-bg) 8%)",
+                  }}
+                >
+                  <div className="mb-2 grid grid-cols-3 gap-1 rounded-xl border p-1" style={{ borderColor: "var(--app-border)" }}>
+                    {[
+                      { id: "system" as const, icon: "Sys", label: "System" },
+                      { id: "light" as const, icon: "Sun", label: "Light" },
+                      { id: "dark" as const, icon: "Moon", label: "Dark" },
+                    ].map((option) => {
+                      const active = themePreference === option.id;
+                      return (
+                        <button
+                          key={option.id}
+                          type="button"
+                          aria-label={`Use ${option.label} theme`}
+                          aria-pressed={active}
+                          onClick={() => applyThemePreference(option.id)}
+                          className="rounded-lg py-1.5 text-sm transition"
+                          style={{
+                            color: active ? "var(--app-fg)" : "var(--app-muted)",
+                            backgroundColor: active
+                              ? "color-mix(in srgb, var(--app-accent) 24%, var(--app-card) 76%)"
+                              : "color-mix(in srgb, var(--app-bg) 84%, var(--app-card) 16%)",
+                            boxShadow: active
+                              ? "0 0 0 1px color-mix(in srgb, var(--app-accent-strong) 35%, transparent)"
+                              : "none",
+                          }}
+                        >
+                          {option.icon}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="space-y-1">
+                    <Link href="/pricing" className="block rounded-lg px-3 py-2 text-sm font-medium hover:opacity-80" style={{ color: "var(--app-muted)" }}>
+                      Unlock Unlimited Access
+                    </Link>
+                    <Link href="/profile" className="block rounded-lg px-3 py-2 text-sm font-medium hover:opacity-80" style={{ color: "var(--app-fg)" }}>
+                      Profile
+                    </Link>
+                    <Link href="/settings" className="block rounded-lg px-3 py-2 text-sm font-medium hover:opacity-80" style={{ color: "var(--app-fg)" }}>
+                      Settings
+                    </Link>
+                    <Link href="/support" className="block rounded-lg px-3 py-2 text-sm font-medium hover:opacity-80" style={{ color: "var(--app-fg)" }}>
+                      Quick Guide
+                    </Link>
+                    <Link href="/support" className="block rounded-lg px-3 py-2 text-sm font-medium hover:opacity-80" style={{ color: "var(--app-fg)" }}>
+                      Contact Us
+                    </Link>
+                    <a
+                      href="mailto:contact@lerna.ai?subject=Lerna%20Feedback"
+                      className="block rounded-lg px-3 py-2 text-sm font-medium hover:opacity-80"
+                      style={{ color: "var(--app-fg)" }}
+                    >
+                      Give Feedback
+                    </a>
+                  </div>
+
+                  <div className="mt-2 border-t pt-2" style={{ borderColor: "var(--app-border)" }}>
+                    <button
+                      type="button"
+                      onClick={() => void logout()}
+                      className="block w-full rounded-lg px-3 py-2 text-left text-sm font-medium transition hover:opacity-80"
+                      style={{ color: "var(--app-fg)" }}
+                    >
+                      Sign out
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+
+              <button
+                type="button"
+                onClick={() => setAccountMenuOpen((prev) => !prev)}
+                className="flex w-full items-center justify-between rounded-lg border px-3 py-2.5"
+                style={{
+                  borderColor: "var(--app-border)",
+                  backgroundColor: "color-mix(in srgb, var(--app-bg) 88%, var(--app-card) 12%)",
+                }}
+              >
+                <p className="text-sm font-semibold">{userName}</p>
+                <span style={{ color: "var(--app-muted)" }}>{accountMenuOpen ? "Close" : "Menu"}</span>
+              </button>
+            </div>
+          </div>
+
           {activeSection === "scan-notes" ? (
             <div className="mx-auto max-w-5xl py-6 sm:py-10">
               <div className="mx-auto max-w-3xl text-center">
@@ -936,7 +1038,7 @@ export default function StudyroomHomePage() {
                       }}
                     >
                       <span className="inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold" style={{ backgroundColor: "color-mix(in srgb, var(--app-accent) 16%, transparent)", color: "var(--app-accent-strong)" }}>
-                        ✓
+                        OK
                       </span>
                       <span className="max-w-[240px] truncate text-sm font-medium sm:max-w-[420px]">{scanNoteFile.name}</span>
                     </div>
@@ -980,7 +1082,7 @@ export default function StudyroomHomePage() {
                       }}
                       aria-label="Scan notes"
                     >
-                      ↑
+                      Go
                     </button>
                   </div>
                 </div>
@@ -1010,7 +1112,7 @@ export default function StudyroomHomePage() {
                   style={{ color: "var(--app-muted)" }}
                   aria-label="Back to study sets"
                 >
-                  »
+                  {"<"}
                 </button>
               </div>
 
@@ -1036,7 +1138,7 @@ export default function StudyroomHomePage() {
                   boxShadow: "inset 6px 0 0 color-mix(in srgb, var(--app-fg) 75%, transparent)",
                 }}
               >
-                <span className="text-3xl" style={{ color: "var(--app-muted)" }}>📁</span>
+                <span className="text-3xl" style={{ color: "var(--app-muted)" }}>[]</span>
                 <span className="min-w-0">
                   <span className="block text-xl font-semibold">All Study Sets</span>
                   <span className="block text-sm" style={{ color: "var(--app-muted)" }}>
@@ -1048,7 +1150,7 @@ export default function StudyroomHomePage() {
               {folders.length === 0 ? (
                 <div className="px-4 pt-20 text-center">
                   <div className="mx-auto inline-flex h-24 w-24 items-center justify-center rounded-full border text-5xl" style={{ borderColor: "var(--app-border)", color: "var(--app-muted)" }}>
-                    📂
+                    []
                   </div>
                   <p className="mt-6 text-3xl font-medium" style={{ color: "var(--app-muted)" }}>
                     No folders yet
@@ -1097,7 +1199,7 @@ export default function StudyroomHomePage() {
                       backgroundColor: "color-mix(in srgb, var(--app-bg) 92%, var(--app-card) 8%)",
                     }}
                   >
-                    <p className="text-2xl" style={{ color: "var(--app-muted)" }}>⇪</p>
+                    <p className="text-2xl" style={{ color: "var(--app-muted)" }}>Up</p>
                     <p className="mt-1.5 text-2xl font-semibold">Upload</p>
                     <p className="mt-1.5 text-base" style={{ color: "var(--app-muted)" }}>Image, file, audio, video</p>
                   </button>
@@ -1125,7 +1227,7 @@ export default function StudyroomHomePage() {
                       backgroundColor: "color-mix(in srgb, var(--app-bg) 92%, var(--app-card) 8%)",
                     }}
                   >
-                    <p className="text-2xl" style={{ color: "var(--app-muted)" }}>◉</p>
+                    <p className="text-2xl" style={{ color: "var(--app-muted)" }}>Rec</p>
                     <p className="mt-1.5 text-2xl font-semibold">Record</p>
                     <p className="mt-1.5 text-base" style={{ color: "var(--app-muted)" }}>Record live lecture</p>
                   </button>
@@ -1197,7 +1299,7 @@ export default function StudyroomHomePage() {
                           }}
                           aria-label="More options"
                         >
-                          ⋯
+                          ...
                         </button>
 
                         {menuOpenId === subject.id ? (
@@ -1271,7 +1373,7 @@ export default function StudyroomHomePage() {
                   style={{ color: "var(--app-muted)" }}
                   aria-label="Close upload modal"
                 >
-                  ×
+                  X
                 </button>
               </div>
             </div>
@@ -1396,7 +1498,7 @@ export default function StudyroomHomePage() {
                         color: "var(--app-accent-strong)",
                       }}
                     >
-                      ⇪
+                      Up
                     </div>
                     <p className="mt-3 text-lg font-semibold sm:text-xl">
                       {isDraggingUpload ? "Drop files now" : "Click to upload or drag and drop up to 10 files"}
@@ -1683,5 +1785,6 @@ export default function StudyroomHomePage() {
     </main>
   );
 }
+
 
 

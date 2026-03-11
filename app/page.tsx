@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getCurrentUserFromCookieHeader } from "@/lib/auth";
@@ -173,7 +173,7 @@ export default async function Home() {
               >
                 <div className="rounded-2xl p-3" style={{ backgroundColor: "var(--app-card)" }}>
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-semibold" style={{ color: "var(--app-muted)" }}>Studyroom preview</p>
+                    <p className="text-xs font-semibold" style={{ color: "var(--app-muted)" }}>StudyBoard preview</p>
                     <span
                       className="rounded-full border px-2.5 py-1 text-[10px] font-semibold"
                       style={{
@@ -553,7 +553,7 @@ export default async function Home() {
                                     : "color-mix(in srgb, var(--app-border) 50%, transparent)",
                                 }}
                               >
-                                {option.active ? "A" : "•"}
+                                {option.active ? "A" : "-"}
                               </span>
                             </div>
                           ))}
@@ -681,7 +681,7 @@ export default async function Home() {
                   ],
                 },
                 {
-                  title: "More Value in One Studyroom",
+                  title: "More Value in One StudyBoard",
                   icon: "$",
                   tone: "color-mix(in srgb, var(--app-accent) 16%, var(--app-card))",
                   old: [
@@ -734,8 +734,7 @@ export default async function Home() {
                           backgroundColor: "color-mix(in srgb, var(--app-accent) 22%, transparent)",
                         }}
                       >
-                        ✓
-                      </span>
+                        �?                      </span>
                       <div className="h-px flex-1" style={{ backgroundColor: "var(--app-border)" }} />
                     </div>
 
@@ -747,8 +746,7 @@ export default async function Home() {
                         {card.newWay.map((item) => (
                           <li key={item} className="flex items-start gap-3">
                             <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold" style={{ backgroundColor: "color-mix(in srgb, var(--app-accent) 26%, transparent)", color: "var(--app-accent-strong)" }}>
-                              ✓
-                            </span>
+                              �?                            </span>
                             <span>{item}</span>
                           </li>
                         ))}
@@ -895,7 +893,7 @@ export default async function Home() {
                   <p><Link href="/support" style={{ color: "var(--app-muted)" }}>Support</Link></p>
                   <p><Link href="/auth?mode=signup" style={{ color: "var(--app-muted)" }}>Create Account</Link></p>
                   <p><Link href="/auth?mode=login" style={{ color: "var(--app-muted)" }}>Sign In</Link></p>
-                  <p><Link href="/studyroom" style={{ color: "var(--app-muted)" }}>Open Studyroom</Link></p>
+                  <p><Link href="/studyroom" style={{ color: "var(--app-muted)" }}>Open StudyBoard</Link></p>
                 </div>
               </div>
 
@@ -920,6 +918,7 @@ export default async function Home() {
     </main>
   );
 }
+
 
 
 

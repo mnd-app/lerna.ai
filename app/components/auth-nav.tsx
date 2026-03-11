@@ -13,7 +13,11 @@ type User = {
 
 export default function AuthNav() {
   const pathname = usePathname();
-  const isHome = pathname === "/";
+  const isLandingHeader =
+    pathname === "/" ||
+    pathname === "/pricing" ||
+    pathname === "/support" ||
+    pathname === "/auth";
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -99,19 +103,19 @@ export default function AuthNav() {
           href="/auth?mode=signup"
           className="rounded-full border px-5 py-1.5 text-sm font-semibold transition-all duration-200 hover:-translate-y-px hover:shadow-[0_0_20px_rgba(123,163,255,0.35)]"
           style={{
-            borderColor: isHome
+            borderColor: isLandingHeader
               ? "transparent"
               : "color-mix(in srgb, var(--app-fg) 85%, black 15%)",
-            background: isHome
+            background: isLandingHeader
               ? "linear-gradient(135deg, color-mix(in srgb, var(--app-accent-strong) 90%, white 10%), var(--app-accent))"
               : "none",
-            backgroundColor: isHome ? undefined : "white",
-            color: isHome ? "white" : "black",
-            boxShadow: isHome
+            backgroundColor: isLandingHeader ? undefined : "white",
+            color: isLandingHeader ? "white" : "black",
+            boxShadow: isLandingHeader
               ? "0 8px 24px color-mix(in srgb, var(--app-accent) 34%, transparent)"
               : "0 0 18px color-mix(in srgb, var(--app-accent) 20%, transparent)",
-            minWidth: isHome ? "160px" : undefined,
-            textAlign: isHome ? "center" : undefined,
+            minWidth: isLandingHeader ? "160px" : undefined,
+            textAlign: isLandingHeader ? "center" : undefined,
           }}
         >
           Get Started

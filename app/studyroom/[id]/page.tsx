@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -18,6 +18,14 @@ type SubjectListItem = {
   id: string;
   topicName: string;
 };
+
+type ThemePreference = "system" | "light" | "dark";
+type User = {
+  name: string;
+  preferredName?: string;
+};
+
+const THEME_STORAGE_KEY = "lerna-theme";
 
 const STUDYROOM_TABS = [
   { id: "study-guide", label: "Study Guide" },
@@ -109,6 +117,9 @@ export default function StudyroomTopicPage() {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [showCardBack, setShowCardBack] = useState(false);
   const [cardStatus, setCardStatus] = useState<Record<string, "red" | "yellow" | "green">>({});
+  const [userName, setUserName] = useState("Student");
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [themePreference, setThemePreference] = useState<ThemePreference>("system");
 
   useEffect(() => {
     let mounted = true;
@@ -119,6 +130,10 @@ export default function StudyroomTopicPage() {
         if (!meResponse.ok) {
           if (mounted) router.replace(`/auth?mode=login&next=${encodeURIComponent(`/studyroom/${subjectId}`)}`);
           return;
+        }
+        const mePayload = (await meResponse.json()) as { user: User };
+        if (mounted) {
+          setUserName(mePayload.user.preferredName?.trim() || mePayload.user.name || "Student");
         }
 
         const [detailRes, listRes] = await Promise.all([
@@ -142,7 +157,7 @@ export default function StudyroomTopicPage() {
           setSubjects(listPayload.subjects ?? []);
         }
       } catch {
-        if (mounted) setError("Failed to load studyroom.");
+        if (mounted) setError("Failed to load StudyBoard.");
       }
     }
 
@@ -151,6 +166,17 @@ export default function StudyroomTopicPage() {
       mounted = false;
     };
   }, [router, subjectId]);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(THEME_STORAGE_KEY);
+      if (saved === "light" || saved === "dark") {
+        setThemePreference(saved);
+        return;
+      }
+    } catch {}
+    setThemePreference("system");
+  }, []);
 
   const questions = useMemo(() => subject?.questions ?? [], [subject?.questions]);
   const flashcards = useMemo(() => subject?.flashcards ?? [], [subject?.flashcards]);
@@ -199,6 +225,33 @@ export default function StudyroomTopicPage() {
     if (flashcards.length === 0) return;
     setCurrentCardIndex((prev) => (prev - 1 + flashcards.length) % flashcards.length);
     setShowCardBack(false);
+  }
+
+  function applyThemePreference(next: ThemePreference) {
+    setThemePreference(next);
+
+    if (typeof window === "undefined" || typeof document === "undefined") return;
+
+    if (next === "system") {
+      const preferredTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+      document.documentElement.setAttribute("data-theme", preferredTheme);
+      try {
+        localStorage.removeItem(THEME_STORAGE_KEY);
+      } catch {}
+      return;
+    }
+
+    document.documentElement.setAttribute("data-theme", next);
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, next);
+    } catch {}
+  }
+
+  async function logout() {
+    await fetch("/api/auth/logout", { method: "POST" });
+    window.location.href = "/auth?mode=login";
   }
 
   function renderTabContent() {
@@ -400,9 +453,9 @@ export default function StudyroomTopicPage() {
     <main className="min-h-[calc(100vh-56px)] px-6 py-10">
       <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[220px_1fr_300px]">
         <aside
-          className="ui-panel rounded-3xl p-4"
+          className="ui-panel rounded-3xl p-4 lg:flex lg:min-h-[calc(100vh-120px)] lg:flex-col"
         >
-          <h2 className="text-lg font-semibold">Studyroom</h2>
+          <h2 className="text-lg font-semibold">StudyBoard</h2>
           <div className="mt-3 space-y-2">
             {STUDYROOM_TABS.map((item) => {
               const active = tab === item.id;
@@ -426,11 +479,189 @@ export default function StudyroomTopicPage() {
               );
             })}
           </div>
+
+          <div className="relative mt-6 lg:mt-auto">
+            {accountMenuOpen ? (
+              <div
+                className="absolute bottom-14 left-0 z-20 w-full rounded-2xl border p-2 shadow-xl"
+                style={{
+                  borderColor: "var(--app-border)",
+                  backgroundColor: "color-mix(in srgb, var(--app-card) 92%, var(--app-bg) 8%)",
+                }}
+              >
+                <div
+                  className="mb-2 grid grid-cols-3 gap-1 rounded-xl border p-1"
+                  style={{ borderColor: "var(--app-border)" }}
+                >
+                  {[
+                    { id: "system" as const, icon: "🖥", label: "System" },
+                    { id: "light" as const, icon: "☀", label: "Light" },
+                    { id: "dark" as const, icon: "🌙", label: "Dark" },
+                  ].map((option) => {
+                    const active = themePreference === option.id;
+                    return (
+                      <button
+                        key={option.id}
+                        type="button"
+                        aria-label={`Use ${option.label} theme`}
+                        aria-pressed={active}
+                        onClick={() => applyThemePreference(option.id)}
+                        className="rounded-lg py-1.5 text-base transition"
+                        style={{
+                          color: active ? "var(--app-fg)" : "var(--app-muted)",
+                          backgroundColor: active
+                            ? "color-mix(in srgb, var(--app-accent) 24%, var(--app-card) 76%)"
+                            : "color-mix(in srgb, var(--app-bg) 84%, var(--app-card) 16%)",
+                          boxShadow: active
+                            ? "0 0 0 1px color-mix(in srgb, var(--app-accent-strong) 35%, transparent)"
+                            : "none",
+                        }}
+                      >
+                        {option.icon}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="space-y-1">
+                  <Link href="/pricing" className="block rounded-lg px-3 py-2 text-sm font-medium hover:opacity-80" style={{ color: "var(--app-muted)" }}>
+                    Unlock Unlimited Access
+                  </Link>
+                  <Link href="/profile" className="block rounded-lg px-3 py-2 text-sm font-medium hover:opacity-80" style={{ color: "var(--app-fg)" }}>
+                    Profile
+                  </Link>
+                  <Link href="/settings" className="block rounded-lg px-3 py-2 text-sm font-medium hover:opacity-80" style={{ color: "var(--app-fg)" }}>
+                    Settings
+                  </Link>
+                  <Link href="/support" className="block rounded-lg px-3 py-2 text-sm font-medium hover:opacity-80" style={{ color: "var(--app-fg)" }}>
+                    Quick Guide
+                  </Link>
+                  <Link href="/support" className="block rounded-lg px-3 py-2 text-sm font-medium hover:opacity-80" style={{ color: "var(--app-fg)" }}>
+                    Contact Us
+                  </Link>
+                </div>
+
+                <div className="mt-2 border-t pt-2" style={{ borderColor: "var(--app-border)" }}>
+                  <button
+                    type="button"
+                    onClick={() => void logout()}
+                    className="block w-full rounded-lg px-3 py-2 text-left text-sm font-medium transition hover:opacity-80"
+                    style={{ color: "var(--app-fg)" }}
+                  >
+                    Sign out
+                  </button>
+                </div>
+              </div>
+            ) : null}
+
+            <button
+              type="button"
+              onClick={() => setAccountMenuOpen((prev) => !prev)}
+              className="mt-4 flex w-full items-center justify-between rounded-lg border px-3 py-2.5"
+              style={{
+                borderColor: "var(--app-border)",
+                backgroundColor: "color-mix(in srgb, var(--app-bg) 88%, var(--app-card) 12%)",
+              }}
+            >
+              <p className="text-sm font-semibold">{userName}</p>
+              <span style={{ color: "var(--app-muted)" }}>{accountMenuOpen ? "Close" : "Menu"}</span>
+            </button>
+          </div>
         </aside>
 
         <section
           className="ui-panel rounded-3xl p-6"
         >
+          <div className="mb-4 lg:hidden">
+            <div className="relative">
+              {accountMenuOpen ? (
+                <div
+                  className="mb-3 rounded-2xl border p-2 shadow-xl"
+                  style={{
+                    borderColor: "var(--app-border)",
+                    backgroundColor: "color-mix(in srgb, var(--app-card) 92%, var(--app-bg) 8%)",
+                  }}
+                >
+                  <div
+                    className="mb-2 grid grid-cols-3 gap-1 rounded-xl border p-1"
+                    style={{ borderColor: "var(--app-border)" }}
+                  >
+                    {[
+                      { id: "system" as const, icon: "Sys", label: "System" },
+                      { id: "light" as const, icon: "Sun", label: "Light" },
+                      { id: "dark" as const, icon: "Moon", label: "Dark" },
+                    ].map((option) => {
+                      const active = themePreference === option.id;
+                      return (
+                        <button
+                          key={option.id}
+                          type="button"
+                          aria-label={`Use ${option.label} theme`}
+                          aria-pressed={active}
+                          onClick={() => applyThemePreference(option.id)}
+                          className="rounded-lg py-1.5 text-sm transition"
+                          style={{
+                            color: active ? "var(--app-fg)" : "var(--app-muted)",
+                            backgroundColor: active
+                              ? "color-mix(in srgb, var(--app-accent) 24%, var(--app-card) 76%)"
+                              : "color-mix(in srgb, var(--app-bg) 84%, var(--app-card) 16%)",
+                            boxShadow: active
+                              ? "0 0 0 1px color-mix(in srgb, var(--app-accent-strong) 35%, transparent)"
+                              : "none",
+                          }}
+                        >
+                          {option.icon}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="space-y-1">
+                    <Link href="/pricing" className="block rounded-lg px-3 py-2 text-sm font-medium hover:opacity-80" style={{ color: "var(--app-muted)" }}>
+                      Unlock Unlimited Access
+                    </Link>
+                    <Link href="/profile" className="block rounded-lg px-3 py-2 text-sm font-medium hover:opacity-80" style={{ color: "var(--app-fg)" }}>
+                      Profile
+                    </Link>
+                    <Link href="/settings" className="block rounded-lg px-3 py-2 text-sm font-medium hover:opacity-80" style={{ color: "var(--app-fg)" }}>
+                      Settings
+                    </Link>
+                    <Link href="/support" className="block rounded-lg px-3 py-2 text-sm font-medium hover:opacity-80" style={{ color: "var(--app-fg)" }}>
+                      Quick Guide
+                    </Link>
+                    <Link href="/support" className="block rounded-lg px-3 py-2 text-sm font-medium hover:opacity-80" style={{ color: "var(--app-fg)" }}>
+                      Contact Us
+                    </Link>
+                  </div>
+
+                  <div className="mt-2 border-t pt-2" style={{ borderColor: "var(--app-border)" }}>
+                    <button
+                      type="button"
+                      onClick={() => void logout()}
+                      className="block w-full rounded-lg px-3 py-2 text-left text-sm font-medium transition hover:opacity-80"
+                      style={{ color: "var(--app-fg)" }}
+                    >
+                      Sign out
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+
+              <button
+                type="button"
+                onClick={() => setAccountMenuOpen((prev) => !prev)}
+                className="flex w-full items-center justify-between rounded-lg border px-3 py-2.5"
+                style={{
+                  borderColor: "var(--app-border)",
+                  backgroundColor: "color-mix(in srgb, var(--app-bg) 88%, var(--app-card) 12%)",
+                }}
+              >
+                <p className="text-sm font-semibold">{userName}</p>
+                <span style={{ color: "var(--app-muted)" }}>{accountMenuOpen ? "Close" : "Menu"}</span>
+              </button>
+            </div>
+          </div>
+
           {error ? <p>{error}</p> : null}
           {!subject && !error ? <p>Loading...</p> : null}
 
@@ -453,11 +684,10 @@ export default function StudyroomTopicPage() {
                     backgroundColor: "color-mix(in srgb, var(--app-bg) 90%, var(--app-card) 10%)",
                   }}
                 >
-                  <span aria-hidden="true">←</span>
                   Back
                 </button>
                 <p className="mt-3 text-sm uppercase tracking-widest" style={{ color: "var(--app-muted)" }}>
-                  Studyroom Topic
+                  StudyBoard Topic
                 </p>
                 <h1 className="mt-2 text-3xl font-bold">{subject.topicName}</h1>
                 <p className="mt-1 text-sm capitalize" style={{ color: "var(--app-muted)" }}>
@@ -502,4 +732,5 @@ export default function StudyroomTopicPage() {
     </main>
   );
 }
+
 

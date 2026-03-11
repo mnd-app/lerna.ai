@@ -116,14 +116,14 @@ export default function PricingSection({ compact = false }: PricingSectionProps)
               className="relative rounded-3xl border p-6"
               style={{
                 borderColor: plan.highlight
-                  ? "color-mix(in srgb, #c084fc 52%, var(--app-border))"
-                  : "color-mix(in srgb, var(--app-border) 84%, rgba(6, 18, 20, 0.85) 16%)",
+                  ? "color-mix(in srgb, #a855f7 68%, var(--app-border))"
+                  : "color-mix(in srgb, var(--app-border) 88%, var(--app-fg) 12%)",
                 background: plan.highlight
-                  ? "linear-gradient(180deg, color-mix(in srgb, #9f67ff 20%, rgba(6, 16, 26, 0.96)) 0%, color-mix(in srgb, #6d28d9 26%, rgba(4, 12, 20, 0.98)) 58%, rgba(5, 9, 19, 0.99) 100%)"
-                  : "linear-gradient(180deg, color-mix(in srgb, rgba(11, 26, 28, 0.96) 90%, var(--app-card) 10%) 0%, color-mix(in srgb, rgba(6, 17, 19, 0.98) 92%, var(--app-card-soft) 8%) 100%)",
+                  ? "linear-gradient(180deg, color-mix(in srgb, #a855f7 24%, var(--app-card)) 0%, color-mix(in srgb, #6d28d9 14%, var(--app-card)) 58%, color-mix(in srgb, var(--app-card) 96%, black 4%) 100%)"
+                  : "linear-gradient(180deg, color-mix(in srgb, var(--app-card) 96%, black 4%) 0%, color-mix(in srgb, var(--app-card-soft) 92%, black 8%) 100%)",
                 boxShadow: plan.highlight
-                  ? "0 0 0 1px color-mix(in srgb, #d8b4fe 28%, transparent), 0 20px 44px color-mix(in srgb, #4c1d95 52%, transparent), 0 0 72px color-mix(in srgb, #a855f7 28%, transparent)"
-                  : "0 20px 40px color-mix(in srgb, black 34%, transparent), inset 0 1px 0 color-mix(in srgb, white 7%, transparent)",
+                  ? "0 0 54px color-mix(in srgb, #a855f7 36%, transparent), 0 18px 36px color-mix(in srgb, #581c87 30%, transparent)"
+                  : "0 14px 30px color-mix(in srgb, black 22%, transparent)",
               }}
             >
               {plan.badge ? (
@@ -131,8 +131,8 @@ export default function PricingSection({ compact = false }: PricingSectionProps)
                   className="absolute -top-3 right-5 rounded-full px-3 py-1 text-xs font-bold"
                   style={{
                     background: plan.highlight
-                      ? "linear-gradient(90deg, #7c3aed 0%, #a855f7 55%, #d8b4fe 100%)"
-                      : "linear-gradient(90deg, color-mix(in srgb, var(--app-accent-strong) 78%, black 22%), color-mix(in srgb, var(--app-accent) 80%, black 20%))",
+                      ? "linear-gradient(90deg, #7c3aed 0%, #c084fc 100%)"
+                      : "linear-gradient(90deg, color-mix(in srgb, var(--app-accent-strong) 72%, black 28%), color-mix(in srgb, var(--app-accent) 74%, black 26%))",
                     color: "white",
                     boxShadow: plan.highlight
                       ? "0 0 28px color-mix(in srgb, #a855f7 34%, transparent)"
@@ -159,14 +159,14 @@ export default function PricingSection({ compact = false }: PricingSectionProps)
                 className="mt-6 inline-flex w-full items-center justify-center rounded-2xl border px-4 py-3 text-xl font-bold transition-all duration-200 hover:-translate-y-px"
                 style={{
                   borderColor: plan.highlight
-                    ? "color-mix(in srgb, #d8b4fe 42%, #7c3aed 58%)"
-                    : "color-mix(in srgb, var(--app-border) 82%, var(--app-accent) 18%)",
+                    ? "color-mix(in srgb, #c084fc 72%, #7c3aed 28%)"
+                    : "var(--app-border)",
                   background: plan.highlight
-                    ? "linear-gradient(90deg, #6d28d9 0%, #8b5cf6 48%, #c084fc 100%)"
-                    : "linear-gradient(90deg, color-mix(in srgb, var(--app-accent-strong) 82%, black 18%) 0%, color-mix(in srgb, var(--app-accent) 78%, black 22%) 100%)",
+                    ? "linear-gradient(90deg, #7c3aed 0%, #a855f7 55%, #c084fc 100%)"
+                    : "linear-gradient(90deg, var(--app-accent-strong) 0%, var(--app-accent) 100%)",
                   color: "white",
                   boxShadow: plan.highlight
-                    ? "0 0 34px color-mix(in srgb, #8b5cf6 38%, transparent)"
+                    ? "0 0 28px color-mix(in srgb, #a855f7 34%, transparent)"
                     : "0 0 24px color-mix(in srgb, var(--app-accent) 18%, transparent)",
                 }}
               >
@@ -194,10 +194,9 @@ export default function PricingSection({ compact = false }: PricingSectionProps)
         <div
           className="mt-10 grid gap-6 rounded-3xl border p-6 sm:grid-cols-2 lg:grid-cols-4"
           style={{
-            borderColor: "color-mix(in srgb, var(--app-border) 78%, rgba(8, 18, 20, 0.92) 22%)",
+            borderColor: "color-mix(in srgb, var(--app-border) 88%, var(--app-fg) 12%)",
             background:
-              "linear-gradient(180deg, color-mix(in srgb, rgba(10, 21, 24, 0.97) 90%, var(--app-card) 10%) 0%, color-mix(in srgb, rgba(4, 13, 15, 0.99) 94%, var(--app-card-soft) 6%) 100%)",
-            boxShadow: "0 20px 42px color-mix(in srgb, black 28%, transparent)",
+              "radial-gradient(120% 120% at 10% 0%, color-mix(in srgb, var(--app-accent) 18%, var(--app-bg)) 0%, color-mix(in srgb, var(--app-card) 95%, black 5%) 52%, var(--app-bg) 100%)",
           }}
         >
           {TRUST_ITEMS.map((item) => (
@@ -205,9 +204,8 @@ export default function PricingSection({ compact = false }: PricingSectionProps)
               <div
                 className="mx-auto mb-3 inline-flex h-14 w-14 items-center justify-center rounded-2xl border text-sm font-bold"
                 style={{
-                  borderColor: "color-mix(in srgb, var(--app-border) 76%, rgba(8, 18, 20, 0.9) 24%)",
-                  background:
-                    "linear-gradient(160deg, color-mix(in srgb, rgba(10, 28, 30, 0.96) 88%, var(--app-card) 12%), rgba(4, 14, 16, 0.98))",
+                  borderColor: "color-mix(in srgb, var(--app-border) 88%, var(--app-fg) 12%)",
+                  backgroundColor: "color-mix(in srgb, var(--app-card) 94%, black 6%)",
                   color: "var(--app-accent-strong)",
                 }}
               >

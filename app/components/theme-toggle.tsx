@@ -29,7 +29,11 @@ function setThemePreference(next: Theme) {
 
 export default function ThemeToggle() {
   const pathname = usePathname();
-  const isHome = pathname === "/";
+  const isLandingHeader =
+    pathname === "/" ||
+    pathname === "/pricing" ||
+    pathname === "/support" ||
+    pathname === "/auth";
 
   const [theme, setTheme] = useState<Theme>("light");
 
@@ -52,7 +56,7 @@ export default function ThemeToggle() {
     setTheme(nextTheme);
   }
 
-  if (isHome) {
+  if (isLandingHeader) {
     const baseButton = "inline-flex h-6 w-8 items-center justify-center rounded-lg text-xs font-semibold transition";
 
     return (

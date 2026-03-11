@@ -22,7 +22,7 @@ export default function StudyroomHeaderActions({
   useEffect(() => {
     if (typeof window === "undefined") return;
     window.dispatchEvent(
-      new CustomEvent("studyroom-search-change", {
+      new CustomEvent("studyboard-search-change", {
         detail: { query: searchQuery },
       }),
     );
@@ -32,7 +32,7 @@ export default function StudyroomHeaderActions({
     return () => {
       if (typeof window === "undefined") return;
       window.dispatchEvent(
-        new CustomEvent("studyroom-search-change", {
+        new CustomEvent("studyboard-search-change", {
           detail: { query: "" },
         }),
       );
@@ -45,10 +45,10 @@ export default function StudyroomHeaderActions({
       setActiveView(customEvent.detail?.view === "folders" ? "folders" : "study-sets");
     }
 
-    window.addEventListener("studyroom-view-sync", handleViewSync);
+    window.addEventListener("studyboard-view-sync", handleViewSync);
 
     return () => {
-      window.removeEventListener("studyroom-view-sync", handleViewSync);
+      window.removeEventListener("studyboard-view-sync", handleViewSync);
     };
   }, []);
 
@@ -119,7 +119,7 @@ export default function StudyroomHeaderActions({
           const nextView = activeView === "folders" ? "study-sets" : "folders";
           setActiveView(nextView);
           window.dispatchEvent(
-            new CustomEvent("studyroom-view-change", {
+            new CustomEvent("studyboard-view-change", {
               detail: { view: nextView },
             }),
           );
